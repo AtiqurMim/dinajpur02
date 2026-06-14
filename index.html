@@ -10,7 +10,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="manifest" href="manifest.json">
+    
+    <!-- PWA Core Headers Linked inside Line 13-16 Matrix Structure -->
+    <link class="pwa-core" rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#059669">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -25,11 +27,11 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-emerald-500 selection:text-slate-950" x-data="appState()" x-init="initApp()">
 
-    <!-- ================= AUTH GATEWAY (LOGIN / SIGNUP / FORGOT PASSWORD SCREEN) ================= -->
+    <!-- ================= UNIVERSAL AUTH GATEWAY (HOMEPAGE MATRIX) ================= -->
     <div x-show="!isLoggedIn" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-3 sm:p-4 overflow-y-auto no-scrollbar">
         <div class="glass w-full max-w-md p-5 sm:p-8 rounded-3xl border border-emerald-500/20 shadow-2xl space-y-5 my-auto max-h-[95vh] overflow-y-auto no-scrollbar">
             
-            <div class="text-center space-y-2">
+            <div class="text-center space-y-1">
                 <div class="inline-block bg-gradient-to-tr from-emerald-500 to-teal-400 p-3 rounded-2xl shadow-[0_0_25px_rgba(16,185,129,0.25)] mb-1">
                     <i class="fa-solid fa-atom text-slate-950 text-2xl sm:text-3xl"></i>
                 </div>
@@ -37,21 +39,22 @@
                 <p class="text-[11px] sm:text-xs text-slate-400">নিরাপদ ব্যাচমেট পোর্টালে আপনার প্রোফাইল অ্যাক্সেস করুন।</p>
             </div>
 
-            <!-- Auth Options Nav Switcher -->
-            <div x-show="authMode !== 'forgot'" class="grid grid-cols-2 gap-2 p-1 bg-slate-900 rounded-xl border border-slate-800">
-                <button @click="authMode = 'login'" :class="authMode === 'login' ? 'bg-emerald-600 text-slate-950 font-bold shadow-md' : 'text-slate-400'" class="py-2.5 text-xs rounded-lg transition-all">লগইন (Login)</button>
-                <button @click="authMode = 'signup'" :class="authMode === 'signup' ? 'bg-emerald-600 text-slate-950 font-bold shadow-md' : 'text-slate-400'" class="py-2.5 text-xs rounded-lg transition-all">নিবন্ধন (Sign Up)</button>
+            <!-- Home Screen 3-Way Auth Switcher Panel Including Direct Admin Login Mode Option -->
+            <div x-show="authMode !== 'forgot'" class="grid grid-cols-3 gap-1 p-1 bg-slate-900/90 rounded-xl border border-slate-800/80">
+                <button @click="authMode = 'login'" :class="authMode === 'login' ? 'bg-emerald-600 text-slate-950 font-bold' : 'text-slate-400'" class="py-2 text-[10px] sm:text-xs rounded-lg transition-all">ইউজার লগইন</button>
+                <button @click="authMode = 'signup'" :class="authMode === 'signup' ? 'bg-emerald-600 text-slate-950 font-bold' : 'text-slate-400'" class="py-2 text-[10px] sm:text-xs rounded-lg transition-all">নিবন্ধন</button>
+                <button @click="authMode = 'admin_login'" :class="authMode === 'admin_login' ? 'bg-red-600 text-white font-bold shadow-md shadow-red-600/20' : 'text-red-400'" class="py-2 text-[10px] sm:text-xs rounded-lg transition-all">অ্যাডমিন মোড</button>
             </div>
 
-            <!-- Login Interface -->
+            <!-- Route 1: General User Login -->
             <div x-show="authMode === 'login'" class="space-y-3" x-transition>
-                <input x-model="authForm.identity" type="text" placeholder="মোবাইল নম্বর / জিমেইল আইডি" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-all h-11">
-                <input x-model="authForm.password" type="password" placeholder="পাসওয়ার্ড" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-all h-11">
-                <button @click="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-slate-950 font-bold text-xs py-3.5 rounded-xl transition-all shadow-lg h-11">পোর্টালে প্রবেশ করুন 🔓</button>
+                <input x-model="authForm.identity" type="text" placeholder="মোবাইল নম্বর / জিমেইল আইডি" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 h-11">
+                <input x-model="authForm.password" type="password" placeholder="পাসওয়ার্ড" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 h-11">
+                <button @click="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-slate-950 font-bold text-xs py-3.5 rounded-xl transition-all h-11">পোর্টালে প্রবেশ করুন 🔓</button>
                 <button @click="authMode = 'forgot'" class="text-[11px] text-amber-400 hover:underline block mx-auto pt-1">পাসওয়ার্ড ভুলে গেছেন? (Forgot Password?)</button>
             </div>
 
-            <!-- Signup Interface with Omni Channels -->
+            <!-- Route 2: Omni Signup Interface with Auto-Fetch -->
             <div x-show="authMode === 'signup'" class="space-y-4" x-transition>
                 <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">১. ভেরিফিকেশন কন্টাক্ট চ্যানেল বাছুন:</p>
                 <div class="grid grid-cols-4 gap-2 text-xl">
@@ -60,28 +63,34 @@
                     <button @click="triggerNativeFetch('WhatsApp')" :class="authForm.channel === 'WhatsApp' ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-slate-800 bg-slate-900 text-slate-400'" class="p-3 border rounded-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center"><i class="fa-brands fa-whatsapp"></i></button>
                     <button @click="triggerNativeFetch('Phone')" :class="authForm.channel === 'Phone' ? 'border-sky-500 bg-sky-500/10 text-sky-400' : 'border-slate-800 bg-slate-900 text-slate-400'" class="p-3 border rounded-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center"><i class="fa-solid fa-phone"></i></button>
                 </div>
-
                 <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">২. ব্যক্তিগত বিবরণ সেট করুন:</p>
                 <div class="space-y-2.5">
-                    <input id="autofill-name" x-model="authForm.name" type="text" autocomplete="name" placeholder="আপনার পূর্ণ নাম (যেমন: রাসেল মাহমুদ)" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-all h-11">
-                    <input id="autofill-identity" x-model="authForm.identity" :type="authForm.channel === 'Gmail' ? 'email' : 'tel'" :autocomplete="authForm.channel === 'Gmail' ? 'email' : 'tel'" :placeholder="'আপনার ' + authForm.channel + ' নম্বর বা আইডি দিন'" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-all h-11">
-                    <input x-model="authForm.school" type="text" placeholder="২০০২ সালের স্কুল (জিলা স্কুল/বালিকা উচ্চ বিদ্যালয় ইত্যাদি)" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-all h-11">
-                    <input x-model="authForm.password" type="password" autocomplete="new-password" placeholder="অ্যাকাউন্টের জন্য নতুন পাসওয়ার্ড সেট করুন" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-all h-11">
+                    <input id="autofill-name" x-model="authForm.name" type="text" placeholder="আপনার পূর্ণ নাম" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 h-11">
+                    <input id="autofill-identity" x-model="authForm.identity" type="text" :placeholder="'আপনার ' + authForm.channel + ' নম্বর বা আইডি দিন'" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 h-11">
+                    <input x-model="authForm.school" type="text" placeholder="২০০২ সালের স্কুল বা শিক্ষাপ্রতিষ্ঠান" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 h-11">
+                    <input x-model="authForm.password" type="password" placeholder="অ্যাকাউন্টের জন্য নতুন পাসওয়ার্ড সেট করুন" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 h-11">
                 </div>
-                <button @click="handleSignup()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-slate-950 font-bold text-xs py-3.5 rounded-xl transition-all shadow-lg h-11">অ্যাকাউন্ট তৈরি করুন 🎉</button>
+                <button @click="handleSignup()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-slate-950 font-bold text-xs py-3.5 rounded-xl transition-all h-11">অ্যাকাউন্ট তৈরি করুন 🎉</button>
             </div>
 
-            <!-- Forgot Password Overlay -->
+            <!-- Route 3: DIRECT ADMIN PORTAL LOGIN MODE (HOMEPAGE ONLY) -->
+            <div x-show="authMode === 'admin_login'" class="space-y-3" x-transition>
+                <p class="text-xs text-red-400 text-center font-medium"><i class="fa-solid fa-shield-halved"></i> আপনার সিকিউর মাস্টার অ্যাডমিন পাসওয়ার্ড প্রদান করুন।</p>
+                <input x-model="adminLoginPassword" type="password" placeholder="অ্যাডমিন সিক্রেট পাসওয়ার্ড" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-red-500 h-11">
+                <button @click="handleDirectAdminLogin()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3.5 rounded-xl transition-all shadow-lg shadow-red-600/10 h-11">অ্যাডমিন ড্যাশবোর্ড আনলক করুন 👑</button>
+            </div>
+
+            <!-- Route 4: Forgot Password Overlay Request Form -->
             <div x-show="authMode === 'forgot'" class="space-y-4" x-transition>
                 <p class="text-xs text-slate-400">নিবন্ধিত মোবাইল নম্বর বা জিমেইল আইডি দিন। এটি অ্যাডমিনের পাসওয়ার্ড রিসেট ড্যাশবোর্ডে চলে যাবে এবং নতুন অ্যাক্সেস সরবরাহ করা হবে।</p>
                 <input x-model="forgotForm.identity" type="text" placeholder="নিবন্ধিত মোবাইল নম্বর / জিমেইল আইডি" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 h-11">
-                <button @click="requestPasswordReset()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs py-3.5 rounded-xl transition-all shadow-lg h-11">পাসওয়ার্ড রিসেট অনুরোধ পাঠান 🚀</button>
+                <button @click="requestPasswordReset()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs py-3.5 rounded-xl transition-all h-11">পাসওয়ার্ড রিসেট অনুরোধ পাঠান 🚀</button>
                 <button @click="authMode = 'login'" class="text-xs text-slate-500 hover:text-white block mx-auto pt-1">লগইন পেজে ফিরে যান</button>
             </div>
         </div>
     </div>
 
-    <!-- ================= MASTER APP WORKSPACE DASHBOARD ================= -->
+    <!-- ================= MAIN DASHBOARD APP CONSOLE ================= -->
     <nav class="sticky top-0 z-50 glass border-b border-slate-800/80 px-4 py-3 shadow-2xl">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3 cursor-pointer" @click="currentTab = 'feed'; selectedFriend = null">
@@ -93,7 +102,6 @@
                     <p class="text-[9px] text-emerald-400/80 digital-clock tracking-wider">Batch OS v2.0.26</p>
                 </div>
             </div>
-            
             <div class="flex items-center space-x-3">
                 <button @click="toggleLang()" class="bg-slate-800/90 text-[11px] text-emerald-400 border border-slate-700/80 px-2.5 py-1.5 rounded-xl font-bold">
                     <span x-text="lang === 'bn' ? 'EN' : 'বাংলা'"></span>
@@ -107,10 +115,10 @@
         </div>
     </nav>
 
-    <!-- Master Scaffold Frame Container -->
+    <!-- Master Layout Frame -->
     <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-4 sm:gap-6 px-3 sm:px-4 py-4 sm:py-6">
         
-        <!-- Sidebar Navigation (Scrollable Horizontally on Small Screen Viewports) -->
+        <!-- Sidebar Navigation Menu Dashboard Panel -->
         <aside class="w-full lg:w-1/4 flex flex-row lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible pb-2.5 lg:pb-0 sticky top-[65px] h-fit z-40 bg-slate-950 lg:bg-transparent no-scrollbar">
             <button @click="currentTab = 'feed'; selectedFriend = null" :class="currentTab === 'feed' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm flex-1 lg:flex-none">
                 <i class="fa-solid fa-glowing-star text-xs sm:text-sm"></i> <span x-text="t('tabTimeline')"></span>
@@ -118,6 +126,17 @@
             <button @click="currentTab = 'baksho'; selectedFriend = null" :class="currentTab === 'baksho' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm flex-1 lg:flex-none">
                 <i class="fa-solid fa-box-open text-amber-400 text-xs sm:text-sm"></i> <span x-text="t('tabBaksho')"></span>
             </button>
+            
+            <!-- NEW TAB FEATURE LINK: OPPORTUNITY BOARD -->
+            <button @click="currentTab = 'opportunities'; selectedFriend = null" :class="currentTab === 'opportunities' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm flex-1 lg:flex-none">
+                <i class="fa-solid fa-briefcase text-blue-400 text-xs sm:text-sm"></i> <span x-text="t('tabOpportunities')"></span>
+            </button>
+
+            <!-- NEW TAB FEATURE LINK: NEED HELP AREA -->
+            <button @click="currentTab = 'need_help'; selectedFriend = null" :class="currentTab === 'need_help' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm flex-1 lg:flex-none">
+                <i class="fa-solid fa-hand-holding-medical text-rose-400 text-xs sm:text-sm"></i> <span x-text="t('tabNeedHelp')"></span>
+            </button>
+
             <button @click="currentTab = 'funzone'; selectedFriend = null" :class="currentTab === 'funzone' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm flex-1 lg:flex-none">
                 <i class="fa-solid fa-gamepad text-purple-400 text-xs sm:text-sm"></i> <span x-text="t('tabFun')"></span>
             </button>
@@ -127,15 +146,17 @@
             <button @click="currentTab = 'guide'; selectedFriend = null" :class="currentTab === 'guide' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm flex-1 lg:flex-none">
                 <i class="fa-solid fa-mobile-screen-button text-teal-400 text-xs sm:text-sm"></i> <span x-text="t('tabGuide')"></span>
             </button>
+            
+            <!-- Admin Dashboard Controller Link (Active only if general session or master mode is active) -->
             <button @click="handleAdminTabClick()" :class="currentTab === 'admin' ? 'bg-red-600 text-white font-bold' : 'glass text-red-400 border-red-900/30'" class="whitespace-nowrap px-4 py-3 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm flex-1 lg:flex-none lg:mt-4">
                 <i class="fa-solid fa-user-shield text-xs sm:text-sm"></i> <span x-text="t('tabAdmin')"></span>
             </button>
         </aside>
 
-        <!-- Dynamic Main Workspace Viewport -->
+        <!-- Dynamic Content Engine Main Sub-panels Workspace Viewport -->
         <main class="w-full lg:w-3/4">
 
-            <!-- TAB 1: SOCIAL CYBER TIMELINE -->
+            <!-- TAB 1: SOCIAL TIME STRREAMS FEED -->
             <div x-show="currentTab === 'feed' && !selectedFriend" x-transition class="space-y-4 sm:space-y-6">
                 <div class="glass p-4 sm:p-5 rounded-2xl">
                     <div class="flex gap-3 sm:gap-4">
@@ -150,7 +171,7 @@
                     </div>
                 </div>
 
-                <!-- Live Stream Feed Layer -->
+                <!-- Feed Stream Render Components -->
                 <div class="space-y-3 sm:space-y-4">
                     <template x-for="(post, index) in posts" :key="post.id || index">
                         <div class="glass p-4 sm:p-5 rounded-2xl space-y-3 relative">
@@ -177,8 +198,9 @@
                 </div>
             </div>
 
-            <!-- TAB 2: MIMER BAKSHO DIRECTORY -->
+            <!-- TAB 2: MIMER BAKSHO RESPONSIBILITY HUB DIRECTORY -->
             <div x-show="currentTab === 'baksho' && !selectedFriend" x-transition class="space-y-4">
+                <!-- Direct Legacy code linked inside this view model layer wrapper -->
                 <div class="glass p-4 sm:p-6 rounded-2xl border border-amber-500/20">
                     <h3 class="text-lg font-bold text-amber-400 mb-1" x-text="t('bakshoTitle')"></h3>
                     <p class="text-[11px] sm:text-xs text-slate-400 mb-4" x-text="t('bakshoDesc')"></p>
@@ -190,14 +212,14 @@
                                     <div class="space-y-1 flex-1 min-w-0">
                                         <h4 class="text-sm sm:text-base font-bold text-slate-100 truncate" x-text="friend.name"></h4>
                                         <div class="flex items-center gap-1.5 flex-wrap">
-                                            <span :class="friend.phone_status === 'Active' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'" class="text-[9px] font-bold px-1.5 border rounded" x-text="friend.phone_status === 'Active' ? 'সচল' : 'অচল'"></span>
+                                            <span :class="friend.phone_status === 'Active' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'" class="text-[9px] font-bold px-1.5 border rounded" x-text="friend.phone_status === 'Active' ? '跑 সচল' : 'অচল'"></span>
                                             <p class="text-[11px] text-slate-400 truncate">গাইড: <span class="text-slate-200 underline font-semibold" x-text="friend.guide_friend_tagged"></span></p>
                                         </div>
                                     </div>
                                 </div>
                                 <p class="text-xs text-slate-300 line-clamp-2 mt-3 italic">"<span x-text="friend.memory"></span>"</p>
                                 <div class="mt-4 pt-2 border-t border-slate-800/60 flex justify-between items-center text-[11px] text-amber-400/80 font-bold">
-                                    <span>👉 বিস্তারিত ফ্যামিলি ডাটা</span>
+                                    <span>👉 বিস্তারিত ফ্যামিলি ডাটা ও স্মৃতি</span>
                                     <template x-if="isAdmin">
                                         <button @click.stop="deleteFriend(friend.id, index)" class="bg-red-950 border border-red-500/20 text-red-400 px-1.5 py-0.5 rounded text-[10px]">Remove</button>
                                     </template>
@@ -208,7 +230,7 @@
                 </div>
             </div>
 
-            <!-- DEDICATED DECEASED FRIEND IMERSIVE SUB-PAGE -->
+            <!-- EXHAUSTIVE DEDICATED DECEASED FRIEND PROFILE INTERFACE LAYER -->
             <div x-show="selectedFriend" x-transition class="space-y-4">
                 <template x-if="selectedFriend">
                     <div>
@@ -217,7 +239,7 @@
                                 <i class="fa-solid fa-arrow-left"></i> ফিরে যান
                             </button>
                             <button @click="openSuggestionModal()" class="bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 font-bold text-[11px] px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-lg">
-                                <i class="fa-solid fa-code-pull-request"></i> সমাধান প্রস্তাব দিন
+                                <i class="fa-solid fa-code-pull-request"></i> সংশোধন প্রস্তাব দিন
                             </button>
                         </div>
                         <div class="glass p-4 sm:p-6 rounded-2xl border-l-4 border-amber-500 space-y-4">
@@ -258,10 +280,11 @@
                                 <p><span class="text-slate-500">সন্তান সংখ্যা:</span> <span class="text-sky-400 font-bold" x-text="selectedFriend.family_details?.children_count || '0'"></span> জন</p>
                             </div>
                         </div>
+                        <!-- Embedded Diary system component -->
                         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="glass p-4 rounded-2xl h-fit">
                                 <h4 class="text-xs sm:text-sm font-bold text-slate-200 mb-2">স্মৃতিচারণ করুন</h4>
-                                <textarea x-model="friendMemoryForm.content" rows="2" placeholder="তার কোনো বিশেষ স্মৃতি যা শেয়ার করতে চান..." class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500"></textarea>
+                                <textarea x-model="friendMemoryForm.content" rows="2" placeholder="তার কোনো বিশেষ স্মৃতি যা শেয়ার করতে চান..." class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-xs text-slate-200 focus:outline-none"></textarea>
                                 <button @click="submitFriendMemory()" class="w-full bg-emerald-600 text-slate-950 font-bold text-xs py-2 mt-2 rounded-xl">জমা দিন 📦</button>
                             </div>
                             <div class="glass p-4 rounded-2xl">
@@ -283,89 +306,115 @@
                 </template>
             </div>
 
-            <!-- ================= USER SUGGESTION MODAL ================= -->
-            <div x-show="showSuggestionModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 overflow-y-auto no-scrollbar" x-transition>
-                <div class="glass max-w-xl w-full p-5 rounded-2xl border border-amber-500/30 shadow-2xl space-y-4 my-auto max-h-[90vh] overflow-y-auto no-scrollbar">
-                    <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
-                        <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase"><i class="fa-solid fa-file-signature"></i> তথ্য সংশোধন ও আপডেট ফরম</h3>
-                        <button @click="showSuggestionModal = false" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            <!-- ================= NEW FEATURE PANEL: OPPORTUNITY HUB ================= -->
+            <div x-show="currentTab === 'opportunities'" x-transition class="space-y-4 sm:space-y-6">
+                <!-- Creator Form block visible to all registered classmates -->
+                <div class="glass p-4 sm:p-5 rounded-2xl border border-blue-500/20 space-y-3">
+                    <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider"><i class="fa-solid fa-briefcase"></i> নতুন পেশাগত বা ক্যারিয়ার সুযোগ শেয়ার করুন</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <input x-model="opportunityForm.title" type="text" placeholder="কাজের শিরোনাম (যেমন: অ্যাকাউন্টস ম্যানেজার / ব্যবসা সংযোগ)" class="bg-slate-950 border border-slate-800 p-2 rounded focus:outline-none text-slate-200 h-10">
+                        <select x-model="opportunityForm.type" class="bg-slate-950 border border-slate-800 p-2 rounded focus:outline-none text-slate-200 h-10">
+                            <option value="Job Opportunity">চাকরি (Job Opportunity)</option>
+                            <option value="Business Offer">ব্যবসা সংযোগ (Business Offer)</option>
+                            <option value="Training/Referral">ট্রেনিং / রেফারেল</option>
+                        </select>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                        <div><label class="block text-slate-400 mb-1">ফোন নম্বর:</label><input x-model="suggestForm.phone" type="text" class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-200 h-9"></div>
-                        <div><label class="block text-slate-400 mb-1">নম্বরের অবস্থা:</label><select x-model="suggestForm.phone_status" class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-200 h-9"><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div>
-                        <div><label class="block text-slate-400 mb-1">ব্যবহারকারী:</label><input x-model="suggestForm.phone_user" type="text" class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-200 h-9"></div>
-                        <div><label class="block text-slate-400 mb-1">ট্যাগ বন্ধু:</label><input x-model="suggestForm.guide_friend_tagged" type="text" class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-200 h-9"></div>
-                    </div>
-                    <div class="text-xs"><label class="block text-slate-400 mb-1">পরিবারের বিবরণ:</label><textarea x-model="suggestForm.family_summary" rows="3" class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-200 focus:outline-none focus:border-amber-500"></textarea></div>
-                    <button @click="submitSuggestionToAdmin()" class="w-full bg-amber-500 text-slate-950 font-bold text-xs py-2.5 rounded-xl">রিভিউয়ের জন্য পাঠান 🚀</button>
+                    <textarea x-model="opportunityForm.details" rows="2" placeholder="সুযোগটির বিস্তারিত বিবরণ, শিক্ষাগত যোগ্যতা বা যোগাযোগের ঠিকানা এখানে স্পষ্ট করে লিখুন..." class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-xs text-slate-200 focus:outline-none" ></textarea>
+                    <button @click="postOpportunity()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2 rounded-xl transition-all" x-text="t('btnPostOpportunity')"></button>
+                </div>
+
+                <!-- Feed Stream Render List for Opportunity Matrix -->
+                <div class="space-y-3">
+                    <template x-for="(opp, idx) in opportunities" :key="opp.id">
+                        <div class="glass p-4 rounded-xl border-l-4 border-blue-500 space-y-2 relative">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase" x-text="opp.type"></span>
+                                    <h4 class="text-sm font-bold text-slate-200 mt-1" x-text="opp.title"></h4>
+                                </div>
+                                <template x-if="opp.author_id === currentUser.id || isAdmin">
+                                    <button @click="deleteOpportunity(idx)" class="text-[10px] text-red-400 bg-red-950/40 p-1.5 border border-red-900/30 rounded"><i class="fa-solid fa-trash"></i></button>
+                                </template>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-light" x-text="opp.details"></p>
+                            <p class="text-[9px] text-slate-500 pt-1">শেয়ার করেছেন: <span class="text-slate-400 font-semibold" x-text="opp.author"></span> • <span x-text="opp.time"></span></p>
+                        </div>
+                    </template>
                 </div>
             </div>
 
-            <!-- TAB 3: FUN ZONE -->
+            <!-- ================= NEW FEATURE PANEL: NEED HELP BOARD ================= -->
+            <div x-show="currentTab === 'need_help'" x-transition class="space-y-4 sm:space-y-6">
+                <!-- Creator Form block for seeking urgent batch attention -->
+                <div class="glass p-4 sm:p-5 rounded-2xl border border-rose-500/20 space-y-3">
+                    <h3 class="text-sm font-bold text-rose-400 uppercase tracking-wider"><i class="fa-solid fa-hand-holding-hand"></i> সাহায্য বা জরুরি সহায়তার পোস্ট করুন (Seek Help)</h3>
+                    <p class="text-[11px] text-slate-400">রক্তের প্রয়োজন, জরুরি চিকিৎসা ফান্ডিং বা যেকোনো সহযোগিতার জন্য পোস্ট দিতে পারেন। আমাদের ব্যাচের বন্ধুরা সর্বদা পাশে আছে।</p>
+                    <select x-model="helpForm.type" class="w-full bg-slate-950 border border-slate-800 p-2 rounded focus:outline-none text-slate-200 h-10 text-xs">
+                        <option value="Emergency Medical / Blood">🚨 জরুরি চিকিৎসা / রক্তদান</option>
+                        <option value="Financial Support">🤝 ফান্ডিং / আর্থিক সহযোগিতা</option>
+                        <option value="General Advice">💡 পরামর্শ বা গাইডেন্স</option>
+                    </select>
+                    <textarea x-model="helpForm.details" rows="2" placeholder="আপনার কি ধরনের সাহায্য লাগবে, স্থান এবং জরুরি যোগাযোগের মোবাইল নম্বরটি বিস্তারিতভাবে এখানে লিখুন..." class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-xs text-slate-200 focus:outline-none" ></textarea>
+                    <button @click="postHelpRequest()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-5 py-2 rounded-xl transition-all" x-text="t('btnPostHelp')"></button>
+                </div>
+
+                <!-- Feed Stream Render List for Help Matrix -->
+                <div class="space-y-3">
+                    <template x-for="(req, idx) in helpRequests" :key="req.id">
+                        <div class="glass p-4 rounded-xl border-l-4 border-rose-500 bg-gradient-to-r from-slate-950 via-slate-900 to-rose-950/5 space-y-2 relative">
+                            <div class="flex justify-between items-start">
+                                <span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[9px] font-bold px-2 py-0.5 rounded-full" x-text="req.type"></span>
+                                <template x-if="req.author_id === currentUser.id || isAdmin">
+                                    <button @click="deleteHelpRequest(idx)" class="text-[10px] text-red-400 bg-red-950/40 p-1.5 border border-red-900/30 rounded"><i class="fa-solid fa-trash"></i></button>
+                                </template>
+                            </div>
+                            <p class="text-xs text-slate-200 font-medium leading-relaxed" x-text="req.details"></p>
+                            <div class="pt-1 flex justify-between items-center text-[9px] text-slate-500">
+                                <span>অনুরোধকারী: <span class="text-slate-400 font-semibold" x-text="req.author"></span> • <span x-text="req.time"></span></span>
+                                <a :href="'https://wa.me/?text=' + encodeURIComponent('জরুরি সাহায্য প্রয়োজন! ' + req.details)" target="_blank" class="text-green-400 font-bold hover:underline flex items-center gap-0.5"><i class="fa-brands fa-whatsapp"></i> শেয়ার</a>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- TAB 5: FUN ZONE ROULETTE MOCK -->
             <div x-show="currentTab === 'funzone'" x-transition class="glass p-5 rounded-2xl border border-purple-500/20 text-center space-y-4">
                 <h3 class="text-base font-bold text-purple-300" x-text="t('rouletteTitle')"></h3>
                 <p class="text-sm font-medium text-emerald-400 min-h-[40px] flex items-center justify-center px-4" x-text="currentMemoryPrompt"></p>
                 <button @click="spinRoulette()" class="bg-purple-600 text-white text-xs font-bold px-5 py-2 rounded-xl" x-text="t('btnSpin')"></button>
             </div>
 
-            <!-- TAB 4: PLANNER -->
+            <!-- TAB 6: EVENT PLANNER MATRIX -->
             <div x-show="currentTab === 'planner'" x-transition class="glass p-4 rounded-2xl space-y-3">
                 <h3 class="text-sm font-bold text-slate-200" x-text="t('tabEvents')"></h3>
                 <div class="border border-slate-800 bg-slate-900/40 p-3 rounded-xl flex gap-3 text-xs">
-                    <div class="bg-sky-500 text-slate-950 font-bold p-2.5 rounded-xl text-center min-w-[55px]"><span class="block text-base leading-none">২৮</span><span class="text-[8px] uppercase">JUN</span></div>
+                    <div class="bg-sky-500 text-slate-950 font-bold p-2.5 rounded-xl text-center min-w-[55px]"><span class="block text-xl">২৮</span><span class="text-[8px] uppercase">JUN</span></div>
                     <div><h4 class="font-bold text-slate-200" x-text="t('sampleEventTitle')"></h4><p class="text-slate-400 text-[11px] mt-0.5"><i class="fa-solid fa-map-location-dot"></i> Dinajpur Rajbari Field</p></div>
                 </div>
             </div>
 
-            <!-- ================= NEW FEATURE: TAB 5 - DYNAMIC APP INSTALLATION USER GUIDE ================= -->
-            <div x-show="currentTab === 'guide' && !selectedFriend" x-transition class="space-y-4 sm:space-y-6">
-                <div class="glass p-5 sm:p-6 rounded-2xl border border-teal-500/20 space-y-3">
-                    <h3 class="text-lg font-bold text-teal-400 flex items-center gap-2">
-                        <i class="fa-solid fa-mobile-button"></i> 
-                        <span x-text="lang === 'bn' ? 'মোবাইল ও কম্পিউটারে অ্যাপ নামানোর নিয়ম' : 'How to Download as an App'"></span>
-                    </h3>
-                    <p class="text-xs text-slate-400 leading-relaxed" x-text="lang === 'bn' ? 'আমাদের নিজস্ব ডোমেইন নেটওয়ার্কটি কোনো ব্রাউজার ইউআরএল বার ছাড়াই সরাসরি হোম স্ক্রিনে নেটিভ অ্যাপের মতো ইনস্টল করতে নিচের নির্দেশনা অনুসরণ করুন।' : 'Follow these instructions to experience a seamless full-screen layout on your device.'"></p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3">
-                        <!-- Card 1: Android System -->
-                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
-                            <h4 class="text-xs font-bold text-emerald-400 flex items-center gap-1.5"><i class="fa-brands fa-android text-base"></i> Android (Chrome)</h4>
-                            <ul class="text-[11px] text-slate-300 space-y-1.5 list-decimal pl-4 font-light">
-                                <li x-text="lang === 'bn' ? 'Google Chrome ব্রাউজারে লিংকে প্রবেশ করুন।' : 'Open the URL in Google Chrome.'"></li>
-                                <li x-text="lang === 'bn' ? 'ওপরের ডানদিকের ৩-ডট মেনুতে আলতো চাপুন।' : 'Tap on the 3-dots menu on top right.'"></li>
-                                <li x-text="lang === 'bn' ? 'মেনু থেকে Install App বা Add to Home screen চাপুন।' : 'Select Install App or Add to Home screen.'"></li>
-                            </ul>
-                        </div>
-                        <!-- Card 2: iPhone iOS System -->
-                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
-                            <h4 class="text-xs font-bold text-sky-400 flex items-center gap-1.5"><i class="fa-brands fa-apple text-base"></i> iPhone iOS (Safari)</h4>
-                            <ul class="text-[11px] text-slate-300 space-y-1.5 list-decimal pl-4 font-light">
-                                <li x-text="lang === 'bn' ? 'Safari ব্রাউজার দিয়ে এই লিংকে প্রবেশ করুন।' : 'Open this portal in Safari Browser.'"></li>
-                                <li x-text="lang === 'bn' ? 'নিচের নেভিগেশন প্যানেলের Share বাটনে চাপুন।' : 'Tap the Share button at the bottom bar.'"></li>
-                                <li x-text="lang === 'bn' ? 'মেনু স্ক্রোল করে Add to Home Screen নির্বাচন করুন।' : 'Scroll down and select Add to Home Screen.'"></li>
-                            </ul>
-                        </div>
-                        <!-- Card 3: Desktop Computer -->
-                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
-                            <h4 class="text-xs font-bold text-purple-400 flex items-center gap-1.5"><i class="fa-solid fa-desktop text-sm"></i> PC / Computer</h4>
-                            <ul class="text-[11px] text-slate-300 space-y-1.5 list-decimal pl-4 font-light">
-                                <li x-text="lang === 'bn' ? 'ক্রোম বা এজ ব্রাউজারে সাইটটি ওপেন করুন।' : 'Open the site in Chrome or Edge.'"></li>
-                                <li x-text="lang === 'bn' ? 'ইউআরএল বারের ডানপাশে মনিটর আইকনটি খুঁজুন।' : 'Look at the right side of the address bar.'"></li>
-                                <li x-text="lang === 'bn' ? 'ইনস্টল বাটনে চাপ দিয়ে কম্পিউটার অ্যাপ বানান।' : 'Click the Monitor Install icon to add app.'"></li>
-                            </ul>
-                        </div>
+            <!-- TAB 7: PWA INSTALLATION APP USER GUIDE -->
+            <div x-show="currentTab === 'guide'" x-transition class="space-y-4">
+                <div class="glass p-4 sm:p-6 rounded-2xl border border-teal-500/20 space-y-3">
+                    <h3 class="text-sm sm:text-base font-bold text-teal-400 flex items-center gap-2"><i class="fa-solid fa-mobile-button"></i> <span x-text="t('tabGuide')"></span></h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-xs">
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800"><h4 class="font-bold text-emerald-400">Android (Chrome)</h4><p class="text-[11px] text-slate-400 mt-1">৩-ডট মেনু খুলুন ➡️ "Install App" বা "Add to Home Screen" প্রেস করুন।</p></div>
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800"><h4 class="font-bold text-sky-400">iPhone (Safari)</h4><p class="text-[11px] text-slate-400 mt-1">Share বোতাম চাপুন ➡️ মেনু থেকে "Add to Home Screen" সিলেক্ট করুন।</p></div>
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800"><h4 class="font-bold text-purple-400">Computer PC</h4><p class="text-[11px] text-slate-400 mt-1">URL বারের ডানপাশের মনিটর ইন্সটল আইকনে ক্লিক করে সরাসরি ডেক্সটপ অ্যাপ বানান।</p></div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 6: ADMIN CONTROL PANEL -->
-            <div x-show="currentTab === 'admin' && isAdmin && !selectedFriend" x-transition class="space-y-4 sm:space-y-6">
+            <!-- TAB 8: ADMIN SUPER-CONTROL DASHBOARD WITH INCOMING QUEUES -->
+            <div x-show="currentTab === 'admin' && isAdmin" x-transition class="space-y-4 sm:space-y-6">
                 <div class="glass p-4 sm:p-6 rounded-2xl border border-red-500/20 space-y-5">
                     <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                        <h3 class="text-sm sm:text-base font-bold text-red-400">অ্যাডমিন কন্ট্রোল ড্যাশবোর্ড</h3>
-                        <button @click="logoutAdmin()" class="bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-1 rounded text-[11px]">Exit Admin</button>
+                        <h3 class="text-sm sm:text-base font-bold text-red-400">অ্যাডমিন কন্ট্রোল ড্যাশবোর্ড (Verified Matrix)</h3>
+                        <button @click="logoutAdmin()" class="bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-1 rounded text-[11px]">Exit Admin Mode</button>
                     </div>
-                    <!-- REQUEST PASSED RESET OVERRIDE ENGINE -->
+
+                    <!-- OVERRIDE CONTROLLER: PASSWORD RESET QUEUE LIST -->
                     <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
                         <h4 class="text-xs font-bold text-red-400 uppercase tracking-wider"><i class="fa-solid fa-key"></i> পাসওয়ার্ড রিসেট রিকোয়েস্ট কিউ (<span x-text="resetRequestsQueue.length"></span>)</h4>
                         <div class="space-y-2 max-h-32 overflow-y-auto no-scrollbar">
@@ -375,9 +424,13 @@
                                     <button @click="adminResetPassword(req.identity, idx)" class="bg-red-600 text-white font-bold px-2.5 py-1 rounded text-[10px]">Override Password</button>
                                 </div>
                             </template>
+                            <template x-if="resetRequestsQueue.length === 0">
+                                <p class="text-[11px] text-slate-500 italic p-1">কোনো অমীমাংসিত রিসেট অনুরোধ নেই।</p>
+                            </template>
                         </div>
                     </div>
-                    <!-- VERIFIED SUGGESTIONS INCOMING ATTRIBUTES -->
+
+                    <!-- MATRIX CONTROLLER: CROWDSOURCED SUGGESTIONS LIST -->
                     <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
                         <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider"><i class="fa-solid fa-code-merge"></i> তথ্য সংশোধনের প্রস্তাবনা সমূহ (<span x-text="suggestionsQueue.length"></span>)</h4>
                         <div class="space-y-2 max-h-40 overflow-y-auto no-scrollbar">
@@ -395,7 +448,8 @@
                             </template>
                         </div>
                     </div>
-                    <!-- DIRECT ATTRIBUTES SUBMISSION FORM -->
+
+                    <!-- DIRECT ATTRIBUTES REGISTRY DATA WRITER -->
                     <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 space-y-2.5 text-xs">
                         <h4 class="font-bold text-slate-300 uppercase text-[11px]">নতুন প্রয়াত বন্ধুর ডিরেক্টরি এন্ট্রি ফরম</h4>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -406,7 +460,8 @@
                         </div>
                         <button @click="addFriendFromAdmin()" class="w-full bg-red-600 font-bold py-2 rounded-xl text-white">ডিরেক্টরিতে সেভ করুন</button>
                     </div>
-                    <!-- SOURCE EXPORTER MODULE (References image_2b79f9.png layout schema logic) -->
+
+                    <!-- EXPORTER CORES (References image_2b79f9.png layout perfectly) -->
                     <div class="mt-6 space-y-2">
                         <h4 class="text-xs font-bold text-emerald-400 uppercase">৩. ব্যাকআপ লোকাল সোর্স কোড ডাটা</h4>
                         <textarea readonly class="w-full bg-black text-green-400 p-3 rounded-lg font-mono text-[10px]" rows="4" x-text="JSON.stringify(deceasedFriends, null, 2)"></textarea>
@@ -417,7 +472,7 @@
         </main>
     </div>
 
-    <!-- Core Runtime Middleware Core Javascript Engine -->
+    <!-- Core Runtime Dynamic Application Stack Javascript Core -->
     <script>
         const SUPABASE_URL = "https://cmpwkfsqkxubkbifnhcv.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_JGBRT-NVMhLHM1xeY-CpHg_5hWEM0gj";
@@ -432,15 +487,24 @@
                 editingPostIndex: null,
                 currentMemoryPrompt: '🎡 Click spin to get a nostalgia question!',
                 
+                // Auth & Registration States
                 isLoggedIn: false,
                 authMode: 'login',
+                adminLoginPassword: '',
                 currentUser: { id: '', name: '', school: '', contact: '' },
                 authForm: { name: '', identity: '', password: '', school: '', channel: 'Phone' },
                 forgotForm: { identity: '' },
                 resetRequestsQueue: [],
 
+                // Advanced App Functional States (Opportunity & Help matrix models)
+                opportunityForm: { title: '', type: 'Job Opportunity', details: '' },
+                opportunities: [],
+                helpForm: { type: 'Emergency Medical / Blood', details: '' },
+                helpRequests: [],
+
+                // Admin Configurations System
                 isAdmin: false,
-                adminSecret: 'dinajpur2002', 
+                adminSecret: 'Dinajpur2002MiM139$', // 👈 আপনার অনুরোধ অনুযায়ী আপডেটকৃত আল্ট্রা-সিকিউর মাস্টার পাসওয়ার্ড
                 adminForm: { name: '', image_url: '', phone: '', phone_status: 'Active', phone_user: '', guide_friend_tagged: '', guide: '', fbLink: '', memory: '' },
 
                 showSuggestionModal: false,
@@ -458,7 +522,7 @@
                         phone: "01711-000000", phone_status: "Active", phone_user: "মা ব্যবহার করছেন",
                         guide_friend_tagged: "রাসেল মাহমুদ", guide: "0171X-XXXXXX", fbLink: "https://facebook.com", 
                         memory: "টিফিনের টাকা বাঁচিয়ে বন্ধুদের খাইয়ে দিত ও। গোলপুকুর পাড়ের আড্ডার প্রাণ ছিল ও।",
-                        family_details: { father: "মরহুম আমজাদ আলী", mother: "রাহেলা খাতুন", spouse: "N/A" }
+                        family_details: { father: "মরহুম আমজাদ আলী", mother: "রাहेला খাতুন", spouse: "N/A" }
                     }
                 ],
                 posts: [],
@@ -466,19 +530,23 @@
                 dictionary: {
                     bn: {
                         appName: "দিনাজপুর ০২ কানেক্ট", tabTimeline: "সাইবার টাইমলাইন", tabBaksho: "মিমের বাক্স 📦",
+                        tabOpportunities: "সুযোগ হাব (Jobs) 💼", tabNeedHelp: "সহায়তা কেন্দ্র 🚨",
                         tabFun: "ফান জোন 🎮", tabEvents: "ইভেন্ট প্ল্যানার", tabGuide: "অ্যাপ ডাউনলোড গাইড 📱", tabAdmin: "অ্যাডমিন প্যানেল", 
                         postPlaceholder: "দিনাজপুরের কোনো হারানো স্মৃতি শেয়ার করো...", liveStatus: "🟢 লাইভ নেটওয়ার্ক একটিভ", 
-                        btnPost: "পোস্ট রিলিজ করুন 🚀", bakshoTitle: "মিমের বাক্স (আমাদের পবিত্র দায়িত্ব)",
-                        bakshoDesc: "হারিয়ে যাওয়া বন্ধুদের স্মরণে আমাদের স্থায়ী সম্মানসূচক প্রজেক্ট। (বিস্তারিত দেখতে কার্ডে ক্লিক করুন)",
+                        btnPost: "পোস্ট রিলিজ করুন 🚀", btnPostOpportunity: "সুযোগটি রিলিজ করুন 📢", btnPostHelp: "সহায়তা রিকোয়েস্ট পাঠান 🚨",
+                        bakshoTitle: "মিমের বাক্স (আমাদের পবিত্র দায়িত্ব)",
+                        bakshoDesc: "হারিয়ে যাওয়া বন্ধুদের স্মরণে আমাদের প্রজেক্ট। (বিস্তারিত দেখতে কার্ডে ক্লিক করুন)",
                         guideFriend: "প্রধান গাইড বন্ধু", familyStatus: "পরিবারের অবস্থা", rouletteTitle: "নস্টালজিয়া রুলেট 🎡",
                         btnSpin: "চাকা ঘোরান 🎯", sampleEventTitle: "ঈদ পরবর্তী মিলনমেলা ও স্মৃতিচারণ আড্ডা ২০২৬"
                     },
                     en: {
                         appName: "Dinajpur 02 Connect", tabTimeline: "Cyber Timeline", tabBaksho: "Mimer Baksho 📦",
+                        tabOpportunities: "Opportunities Board 💼", tabNeedHelp: "Need Help Matrix 🚨",
                         tabFun: "Fun Zone 🎮", tabEvents: "Event Planner", tabGuide: "Install App Guide 📱", tabAdmin: "Admin Dashboard", 
                         postPlaceholder: "Share an old memory of Dinajpur school days...", liveStatus: "🟢 Live Network Active", 
-                        btnPost: "Release Post 🚀", bakshoTitle: "Mimer Baksho (Our Duty Hub)",
-                        bakshoDesc: "A dedicated space to honor our deceased friends. Click cards to view full insights.",
+                        btnPost: "Release Post 🚀", btnPostOpportunity: "Broadcast Opportunity 📢", btnPostHelp: "Broadcast Help Alert 🚨",
+                        bakshoTitle: "Mimer Baksho (Our Duty Hub)",
+                        bakshoDesc: "A dedicated space to honor our deceased friends. Click cards to view insights.",
                         guideFriend: "Main Guide Friend", familyStatus: "Family Update", rouletteTitle: "Nostalgia Roulette 🎡",
                         btnSpin: "Spin Wheel 🎯", sampleEventTitle: "Post-Eid Reunion & Nostalgia Meetup 2026"
                     }
@@ -490,9 +558,19 @@
                     if(localStorage.getItem('saved_friends')) this.deceasedFriends = JSON.parse(localStorage.getItem('saved_friends'));
                     if(localStorage.getItem('suggestions_queue')) this.suggestionsQueue = JSON.parse(localStorage.getItem('suggestions_queue'));
                     if(localStorage.getItem('reset_requests')) this.resetRequestsQueue = JSON.parse(localStorage.getItem('reset_requests'));
+                    if(localStorage.getItem('batch_opportunities')) this.opportunities = JSON.parse(localStorage.getItem('batch_opportunities'));
+                    if(localStorage.getItem('batch_help_requests')) this.helpRequests = JSON.parse(localStorage.getItem('batch_help_requests'));
                     if(localStorage.getItem('admin_session') === 'active') this.isAdmin = true;
                     this.currentMemoryPrompt = this.lang === 'bn' ? '🎡 একটি স্মৃতি বিষয়ক প্রশ্ন পেতে স্পিন করুন!' : '🎡 Click spin to get a nostalgia question!';
                     this.fetchLivePosts();
+                    
+                    // Sample seed populate if opportunity/help boards are blank
+                    if(this.opportunities.length === 0) {
+                        this.opportunities = [{ id: 1, title: "দিনাজপুর সদরে পার্ট-টাইম একাউন্টস অ্যাসিস্ট্যান্ট প্রয়োজন", type: "Job Opportunity", details: "আমাদের ব্যাচমেটের একটি আইটি ফার্মে ১ জন পার্ট-টাইম লোক লাগবে। সিভি ইনবক্স করুন।", author: "রাসেল মাহমুদ", author_id: "system", time: "Just Now" }];
+                    }
+                    if(this.helpRequests.length === 0) {
+                        this.helpRequests = [{ id: 1, type: "Emergency Medical / Blood", details: "দিনাজপুর সদর হাসপাতালে আগামীকাল সকাল ৯টায় 'O Positive' রক্ত প্রয়োজন ২ ব্যাগ। রক্তদানে ইচ্ছুক বন্ধুরা দ্রুত যোগাযোগ করুন।", author: "আসিফ ইকবাল", author_id: "system", time: "Just Now" }];
+                    }
                 },
 
                 t(key) { return this.dictionary[this.lang][key] || key; },
@@ -501,47 +579,56 @@
                     this.currentMemoryPrompt = this.lang === 'bn' ? '🎡 একটি স্মৃতি বিষয়ক প্রশ্ন পেতে স্পিন করুন!' : '🎡 Click spin to get a nostalgia question!';
                 },
 
+                // DIRECT ADMIN LOGIN METHOD FROM HOMEPAGE ONLY
+                handleDirectAdminLogin() {
+                    if (this.adminLoginPassword === this.adminSecret) {
+                        this.isAdmin = true;
+                        this.isLoggedIn = true;
+                        this.currentUser = { id: 'admin_master', name: '👑 সুপার এডমিন (Host)', school: 'দিনাজপুর জিলা/বালিকা উচ্চ', contact: 'Master Account' };
+                        localStorage.setItem('user_session', JSON.stringify(this.currentUser));
+                        localStorage.setItem('admin_session', 'active');
+                        this.currentTab = 'feed';
+                        this.adminLoginPassword = '';
+                        confetti({ particleCount: 150, spread: 80 });
+                    } else {
+                        alert(this.lang === 'bn' ? "ভুল অ্যাডমিন পাসওয়ার্ড!" : "Incorrect Admin Password!");
+                    }
+                },
+
                 async triggerNativeFetch(channel) {
                     this.authForm.channel = channel;
                     document.getElementById('autofill-identity').focus();
-                    if (channel === 'Phone') {
-                        this.authForm.identity = "01712-002002"; this.authForm.name = "রাসেল মাহমুদ (জিলা স্কুল)";
-                    } else if (channel === 'Gmail') {
-                        this.authForm.identity = "mimerbaksho.dinajpur@gmail.com"; this.authForm.name = "আতিফ আসলাম";
-                    } else if (channel === 'Facebook') {
-                        this.authForm.identity = "fb.com/dinajpur.alumni.02"; this.authForm.name = "নওরীন সুলতানা";
-                    } else if (channel === 'WhatsApp') {
-                        this.authForm.identity = "+880 1712-002002"; this.authForm.name = "রাসেল মাহমুদ";
-                    }
-                    confetti({ particleCount: 20, colors: ['#10b981'] });
+                    if (channel === 'Phone') { this.authForm.identity = "01712-002002"; this.authForm.name = "রাসেল মাহমুদ (জিলা স্কুল)"; }
+                    else if (channel === 'Gmail') { this.authForm.identity = "mimerbaksho.dinajpur@gmail.com"; this.authForm.name = "আতিফ আসলাম"; }
+                    else if (channel === 'Facebook') { this.authForm.identity = "fb.com/dinajpur.alumni.02"; this.authForm.name = "নওরীন সুলতানা"; }
+                    else if (channel === 'WhatsApp') { this.authForm.identity = "+880 1712-002002"; this.authForm.name = "রাসেল মাহমুদ"; }
+                    canvasConfetti = window.confetti; canvasConfetti({ particleCount: 15, colors: ['#10b981'] });
                 },
 
                 handleSignup() {
                     if(!this.authForm.name || !this.authForm.identity || !this.authForm.password) return alert("সব ফিল্ড পূরণ করুন!");
                     this.currentUser = { id: 'usr_' + Date.now(), name: this.authForm.name, school: this.authForm.school || 'Dinajpur Alumni', contact: this.authForm.identity };
-                    localStorage.setItem('user_session', JSON.stringify(this.currentUser));
-                    this.isLoggedIn = true; confetti({ particleCount: 50 });
+                    localStorage.setItem('user_session', JSON.stringify(this.currentUser)); this.isLoggedIn = true; confetti({ particleCount: 50 });
                 },
 
                 handleLogin() {
                     if(!this.authForm.identity || !this.authForm.password) return alert("আইডি ও পাসওয়ার্ড দিন!");
                     this.currentUser = { id: 'usr_default', name: 'রাসেল মাহমুদ', school: 'দিনাজপুর জিলা স্কুল', contact: this.authForm.identity };
-                    localStorage.setItem('user_session', JSON.stringify(this.currentUser));
-                    this.isLoggedIn = true;
+                    localStorage.setItem('user_session', JSON.stringify(this.currentUser)); this.isLoggedIn = true;
                 },
 
-                logoutUser() { localStorage.removeItem('user_session'); localStorage.removeItem('admin_session'); this.isLoggedIn = false; this.isAdmin = false; },
+                logoutUser() { localStorage.removeItem('user_session'); localStorage.removeItem('admin_session'); this.isLoggedIn = false; this.isAdmin = false; this.authMode = 'login'; },
 
                 requestPasswordReset() {
                     if(!this.forgotForm.identity.trim()) return alert("মোবাইল বা জিমেইল দিন!");
                     this.resetRequestsQueue.push({ id: Date.now(), identity: this.forgotForm.identity, time: new Date().toLocaleTimeString() });
                     localStorage.setItem('reset_requests', JSON.stringify(this.resetRequestsQueue));
-                    alert("অনুরোধ পাঠানো হয়েছে! অ্যাডমিন নতুন ওভাররাইড পাসওয়ার্ড কন্টাক্ট চ্যানেলে নোটিফাই করবে।");
+                    alert("অনুরোধ পাঠানো হয়েছে! অ্যাডমিন কন্টাক্ট চ্যানেলে নোটিফাই করবে।");
                     this.forgotForm.identity = ''; this.authMode = 'login';
                 },
 
                 adminResetPassword(identity, idx) {
-                    let newPass = prompt(`নতুন পাসওয়ার্ড দিন:`, "dinajpur2002");
+                    let newPass = prompt(`নতুন সাময়িক পাসওয়ার্ড দিন:`, "dinajpur2002");
                     if(newPass) {
                         alert(`সফলভাবে রিসেট কোড জেনারেট হয়েছে!\nইউজার (${identity})-এর ঠিকানায় পাসওয়ার্ড "${newPass}" পাঠানো হয়েছে।`);
                         this.resetRequestsQueue.splice(idx, 1); localStorage.setItem('reset_requests', JSON.stringify(this.resetRequestsQueue));
@@ -559,6 +646,7 @@
 
                 logoutAdmin() { this.isAdmin = false; localStorage.removeItem('admin_session'); this.currentTab = 'feed'; },
 
+                // CLOUD NETWORK (SUPABASE TIMELINE CORES)
                 async fetchLivePosts() {
                     let { data, error } = await _supabase.from('posts').select('*').order('created_at', { ascending: false });
                     if (!error && data) {
@@ -585,42 +673,63 @@
                 editPost(index) { this.editingPostIndex = index; this.newPostText = this.posts[index].content; window.scrollTo({ top: 0, behavior: 'smooth' }); },
                 async deletePost(id, index) { if (confirm("মুছে ফেলতে চান?")) { if(id) await _supabase.from('posts').delete().eq('id', id); this.posts.splice(index, 1); this.fetchLivePosts(); } },
 
+                // DYNAMIC OPPORTUNITY ENGINE METHODS
+                postOpportunity() {
+                    if(!this.opportunityForm.title.trim() || !this.opportunityForm.details.trim()) return alert("সব ফিল্ড পূরণ করুন!");
+                    this.opportunities.unshift({
+                        id: Date.now(), title: this.opportunityForm.title, type: this.opportunityForm.type, details: this.opportunityForm.details,
+                        author: this.currentUser.name, author_id: this.currentUser.id, time: new Date().toLocaleDateString()
+                    });
+                    localStorage.setItem('batch_opportunities', JSON.stringify(this.opportunities));
+                    this.opportunityForm = { title: '', type: 'Job Opportunity', details: '' };
+                    confetti({ particleCount: 30 });
+                },
+                deleteOpportunity(idx) { if(confirm("মুছে ফেলতে চান?")) { this.opportunities.splice(idx, 1); localStorage.setItem('batch_opportunities', JSON.stringify(this.opportunities)); } },
+
+                // DYNAMIC NEED HELP ALERT SYSTEMS
+                postHelpRequest() {
+                    if(!this.helpForm.details.trim()) return alert("সহায়তার বিবরণ লিখুন!");
+                    this.helpRequests.unshift({
+                        id: Date.now(), type: this.helpForm.type, details: this.helpForm.details,
+                        author: this.currentUser.name, author_id: this.currentUser.id, time: new Date().toLocaleDateString()
+                    });
+                    localStorage.setItem('batch_help_requests', JSON.stringify(this.helpRequests));
+                    this.helpForm.details = '';
+                    confetti({ particleCount: 40, colors: ['#f43f5e'] });
+                },
+                deleteHelpRequest(idx) { if(confirm("মুছে ফেলতে চান?")) { this.helpRequests.splice(idx, 1); localStorage.setItem('batch_help_requests', JSON.stringify(this.helpRequests)); } },
+
+                // CROWDSOURCING SUGGESTIONS OVERLAYS
                 openSuggestionModal() {
                     this.suggestForm = { phone: this.selectedFriend.phone || '', phone_status: this.selectedFriend.phone_status || 'Active', phone_user: this.selectedFriend.phone_user || '', guide_friend_tagged: this.selectedFriend.guide_friend_tagged || '', family_summary: '' };
                     this.showSuggestionModal = true;
                 },
-
                 submitSuggestionToAdmin() {
                     this.suggestionsQueue.push({ id: Date.now(), target_friend_id: this.selectedFriend.id, target_friend_name: this.selectedFriend.name, sender_name: this.currentUser.name, phone: this.suggestForm.phone, phone_status: this.suggestForm.phone_status, phone_user: this.suggestForm.phone_user, guide_friend_tagged: this.suggestForm.guide_friend_tagged, family_summary: this.suggestForm.family_summary });
                     localStorage.setItem('suggestions_queue', JSON.stringify(this.suggestionsQueue)); this.showSuggestionModal = false; alert("প্রস্তাবটি অ্যাডমিন রিভিউ কিউতে পাঠানো হয়েছে!");
                 },
-
                 approveSuggestion(suggest, idx) {
                     const friend = this.deceasedFriends.find(f => f.id === suggest.target_friend_id);
                     if (friend) { friend.phone = suggest.phone; friend.phone_status = suggest.phone_status; friend.phone_user = suggest.phone_user; friend.guide_friend_tagged = suggest.guide_friend_tagged; localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends)); }
                     this.suggestionsQueue.splice(idx, 1); localStorage.setItem('suggestions_queue', JSON.stringify(this.suggestionsQueue));
                 },
-
                 rejectSuggestion(idx) { this.suggestionsQueue.splice(idx, 1); localStorage.setItem('suggestions_queue', JSON.stringify(this.suggestionsQueue)); },
 
                 openFriendProfile(friend) {
                     this.selectedFriend = friend;
                     const savedMemories = localStorage.getItem(`memories_friend_${friend.id}`);
-                    this.selectedFriendMemories = savedMemories ? JSON.parse(savedMemories) : [{ id: 1, author: "আسیফ ইকবাল", time: "14/06/2026", content: "স্কুল জীবনের বড় মাঠের আড্ডাগুলো মিস করি ভীষণ রে বন্ধু।" }];
+                    this.selectedFriendMemories = savedMemories ? JSON.parse(savedMemories) : [{ id: 1, author: "আসিফ ইকবাল", time: "14/06/2026", content: "স্কুল জীবনের বড় মাঠের আড্ডাগুলো মিস করি ভীষণ রে বন্ধু।" }];
                 },
-
                 submitFriendMemory() {
                     if(!this.friendMemoryForm.content.trim()) return;
                     this.selectedFriendMemories.unshift({ id: Date.now(), author: this.currentUser.name, time: new Date().toLocaleDateString(), content: this.friendMemoryForm.content });
                     localStorage.setItem(`memories_friend_${this.selectedFriend.id}`, JSON.stringify(this.selectedFriendMemories)); this.friendMemoryForm.content = '';
                 },
-
                 addFriendFromAdmin() {
                     if(!this.adminForm.name) return alert('কমপক্ষে নাম দিন!');
                     this.deceasedFriends.push({ id: Date.now(), name: this.adminForm.name, image_url: this.adminForm.image_url || '', phone: this.adminForm.phone || '', phone_status: this.adminForm.phone_status, phone_user: this.adminForm.phone_user || '', guide_friend_tagged: this.adminForm.guide_friend_tagged || 'N/A', guide: 'N/A', fbLink: '#', memory: 'Always in our hearts.', family_details: { father: 'N/A', mother: 'N/A', spouse: 'N/A' } });
                     localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends)); alert("ডিরেক্টরিতে যুক্ত হয়েছে!"); this.currentTab = 'baksho';
                 },
-
                 deleteFriend(id, index) { if (confirm("ডিলিট করতে চান?")) { this.deceasedFriends.splice(index, 1); localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends)); } },
 
                 spinRoulette() {
