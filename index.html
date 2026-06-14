@@ -115,7 +115,7 @@
                 <i class="fa-solid fa-glowing-star"></i> <span x-text="lang === 'bn' ? 'সাইবার টাইমলাইন' : 'Cyber Timeline'"></span>
             </button>
             <button @click="currentTab = 'memorial'; selectedFriend = null" :class="currentTab === 'memorial' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-amber-400 border-amber-900/40'" class="whitespace-nowrap px-4 py-3 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm flex-1 lg:flex-none">
-                <i class="fa-solid fa-dove"></i> <span x-text="lang === 'bn' ? 'যাদের সাথে আবার দেখা হবে কোনো এক দিন ইনশাআল্লাহ 🕊️' : 'Departed Friends Hub 🕊️'"></span>
+                <i class="fa-solid fa-dove"></i> <span x-text="lang === 'bn' ? 'যাদের সাথে আবার দেখা হবে কোনো এক দিন ইনশাআল্লাহঃ তোরা আছিস 🕊️' : 'Departed Friends Hub 🕊️'"></span>
             </button>
             <button @click="currentTab = 'baksho'; selectedFriend = null" :class="currentTab === 'baksho' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm flex-1 lg:flex-none">
                 <i class="fa-solid fa-box-open text-amber-500"></i> <span x-text="lang === 'bn' ? 'মিমের বাক্স 📦' : 'Mimer Baksho Ledger 📦'"></span>
@@ -213,7 +213,7 @@
 
             <div x-show="currentTab === 'memorial' && !selectedFriend" x-transition class="space-y-4">
                 <div class="glass p-4 sm:p-6 rounded-2xl border border-amber-500/20 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950">
-                    <h3 class="text-xl font-bold text-amber-400 mb-1 flex items-center gap-2"><i class="fa-solid fa-dove"></i> <span x-text="lang === 'bn' ? 'যাদের সাথে আবার দেখা হবে কোনো এক দিন ইনশাআল্লাহ 🕊️' : 'Departed Friends Hub 🕊️'"></span></h3>
+                    <h3 class="text-xl font-bold text-amber-400 mb-1 flex items-center gap-2"><i class="fa-solid fa-dove"></i> <span x-text="lang === 'bn' ? 'যাদের সাথে আবার দেখা হবে কোনো এক দিন ইনশাআল্লাহঃ তোরা আছিস 🕊️' : 'Departed Friends Hub 🕊️'"></span></h3>
                     <p class="text-[11px] sm:text-xs text-slate-400 leading-relaxed" x-text="t('bakshoDesc')"></p>
                     
                     <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -277,7 +277,7 @@
                             <div class="glass p-4 rounded-xl border space-y-1.5">
                                 <h4 class="font-bold text-purple-400 text-[10px] uppercase border-b border-slate-800 pb-1"><i class="fa-solid fa-users"></i> পিতামাতা ও কন্টাক্ট</h4>
                                 <p><span class="text-slate-500">পিতা:</span> <span x-text="selectedFriend.family_details?.father || 'N/A'"></span></p>
-                                <p><span class="text-slate-500">مাতা:</span> <span x-text="selectedFriend.family_details?.mother || 'N/A'"></span></p>
+                                <p><span class="text-slate-500">মাতা:</span> <span x-text="selectedFriend.family_details?.mother || 'N/A'"></span></p>
                             </div>
                             <div class="glass p-4 rounded-xl border space-y-1.5">
                                 <h4 class="font-bold text-rose-400 text-[10px] uppercase border-b border-slate-800 pb-1"><i class="fa-solid fa-heart"></i> জীবনসঙ্গী / ওয়াইফ</h4>
