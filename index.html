@@ -179,6 +179,9 @@
     </div>
 
     <script>
+        const SUPABASE_URL = "https://cmpwkfsqkxubkbifnhcv.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_JGBRT-NVMhLHM1xeY-CpHg_5hWEM0gj";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         function appState() {
             return {
                 lang: 'bn',
