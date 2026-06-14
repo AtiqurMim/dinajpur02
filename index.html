@@ -21,7 +21,7 @@
 
     <nav class="sticky top-0 z-50 glass border-b border-slate-800 px-4 py-3 shadow-2xl">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3 cursor-pointer" @click="currentTab = 'feed'">
+            <div class="flex items-center space-x-3 cursor-pointer" @click="currentTab = 'feed'; selectedFriend = null">
                 <div class="bg-gradient-to-tr from-emerald-500 to-teal-400 p-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.5)]">
                     <i class="fa-solid fa-atom text-slate-950 text-xl"></i>
                 </div>
@@ -39,7 +39,12 @@
                 <div class="hidden sm:block text-right">
                     <span class="text-xs text-slate-400 block"><span x-text="t('level')"></span>: <span class="text-emerald-400 font-bold" x-text="userXP"></span> XP</span>
                 </div>
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Dinajpur" class="w-9 h-9 rounded-xl border border-emerald-500/40 bg-slate-800" alt="Avatar">
+                <div class="flex items-center gap-2">
+                    <template x-if="isAdmin">
+                        <span class="text-[10px] bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-md font-bold uppercase">Admin Mode</span>
+                    </template>
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Dinajpur" class="w-9 h-9 rounded-xl border border-emerald-500/40 bg-slate-800" alt="Avatar">
+                </div>
             </div>
         </div>
     </nav>
@@ -47,26 +52,26 @@
     <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 px-4 py-6">
         
         <aside class="w-full lg:w-1/4 flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-3 lg:pb-0 sticky top-[73px] h-fit z-40 bg-slate-950 lg:bg-transparent">
-            <button @click="currentTab = 'feed'" :class="currentTab === 'feed' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none">
+            <button @click="currentTab = 'feed'; selectedFriend = null" :class="currentTab === 'feed' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none">
                 <i class="fa-solid fa-glowing-star"></i> <span x-text="t('tabTimeline')"></span>
             </button>
-            <button @click="currentTab = 'baksho'" :class="currentTab === 'baksho' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none">
+            <button @click="currentTab = 'baksho'; selectedFriend = null" :class="currentTab === 'baksho' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none">
                 <i class="fa-solid fa-box-open text-amber-400"></i> <span x-text="t('tabBaksho')"></span>
             </button>
-            <button @click="currentTab = 'funzone'" :class="currentTab === 'funzone' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none">
+            <button @click="currentTab = 'funzone'; selectedFriend = null" :class="currentTab === 'funzone' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none">
                 <i class="fa-solid fa-gamepad text-purple-400"></i> <span x-text="t('tabFun')"></span>
             </button>
-            <button @click="currentTab = 'planner'" :class="currentTab === 'planner' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none">
+            <button @click="currentTab = 'planner'; selectedFriend = null" :class="currentTab === 'planner' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none">
                 <i class="fa-solid fa-calendar-plus text-sky-400"></i> <span x-text="t('tabEvents')"></span>
             </button>
-            <button @click="currentTab = 'admin'" :class="currentTab === 'admin' ? 'bg-red-600 text-white font-bold' : 'glass text-red-400 border-red-900/30'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none lg:mt-6">
+            <button @click="handleAdminTabClick()" :class="currentTab === 'admin' ? 'bg-red-600 text-white font-bold' : 'glass text-red-400 border-red-900/30'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none lg:mt-6">
                 <i class="fa-solid fa-user-shield"></i> <span x-text="t('tabAdmin')"></span>
             </button>
         </aside>
 
         <main class="w-full lg:w-3/4">
 
-            <div x-show="currentTab === 'feed'" x-transition class="space-y-6">
+            <div x-show="currentTab === 'feed' && !selectedFriend" x-transition class="space-y-6">
                 <div class="glass p-5 rounded-2xl">
                     <div class="flex gap-4">
                         <img src="https://api.dicebear.com/7.x/bottts/svg?seed=user" class="w-10 h-10 rounded-xl bg-slate-800 border" alt="Avatar">
@@ -81,8 +86,8 @@
                 </div>
 
                 <div class="space-y-4">
-                    <template x-for="(post, index) in posts" :key="index">
-                        <div class="glass p-5 rounded-2xl space-y-4">
+                    <template x-for="(post, index) in posts" :key="post.id || index">
+                        <div class="glass p-5 rounded-2xl space-y-4 relative">
                             <div class="flex justify-between items-center">
                                 <div class="flex items-center gap-3">
                                     <img :src="'https://api.dicebear.com/7.x/bottts/svg?seed=' + post.author" class="w-10 h-10 rounded-xl bg-slate-800">
@@ -91,6 +96,11 @@
                                         <p class="text-[10px] text-emerald-400/80 digital-clock" x-text="post.time"></p>
                                     </div>
                                 </div>
+                                <template x-if="isAdmin">
+                                    <button @click="deletePost(post.id, index)" class="text-xs bg-red-950/80 border border-red-500/30 text-red-400 hover:bg-red-900 hover:text-white px-2.5 py-1 rounded-lg transition-all">
+                                        <i class="fa-solid fa-trash-can"></i> Delete
+                                    </button>
+                                </template>
                             </div>
                             <p class="text-sm text-slate-300" x-text="post.content"></p>
                         </div>
@@ -98,24 +108,28 @@
                 </div>
             </div>
 
-            <div x-show="currentTab === 'baksho'" x-transition class="space-y-6">
+            <div x-show="currentTab === 'baksho' && !selectedFriend" x-transition class="space-y-6">
                 <div class="glass p-6 rounded-2xl border border-amber-500/20">
                     <h3 class="text-xl font-bold text-amber-400 mb-2" x-text="t('bakshoTitle')"></h3>
                     <p class="text-xs text-slate-400" x-text="t('bakshoDesc')"></p>
                     
-                    <div class="mt-6 space-y-4">
-                        <template x-for="friend in deceasedFriends" :key="friend.id">
-                            <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 flex flex-col sm:flex-row gap-4 items-center">
-                                <img :src="'https://api.dicebear.com/7.x/initials/svg?seed=' + friend.name" class="w-12 h-12 rounded-xl bg-slate-800">
-                                <div class="flex-1 text-center sm:text-left">
-                                    <h5 class="text-sm font-bold text-slate-200" x-text="friend.name"></h5>
-                                    <p class="text-xs text-slate-400 mt-1"><strong x-text="t('guideFriend')"></strong>: <span x-text="friend.guide"></span></p>
-                                    <p class="text-xs text-slate-300 mt-1"><strong x-text="t('familyStatus')"></strong>: <span x-text="friend.family"></span></p>
-                                    <p class="text-xs text-amber-400/90 mt-2 italic">"<span x-text="friend.memory"></span>"</p>
-                                    
-                                    <div class="flex justify-center sm:justify-start gap-3 mt-3 text-sm text-slate-400">
-                                        <a :href="friend.fbLink" target="_blank" class="hover:text-blue-500"><i class="fa-brands fa-facebook"></i> Memory Profile</a>
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <template x-for="(friend, index) in deceasedFriends" :key="friend.id">
+                            <div class="glass p-5 rounded-xl border border-slate-800 hover:border-amber-500/40 cursor-pointer transition-all flex flex-col justify-between" @click="openFriendProfile(friend)">
+                                <div class="flex gap-4 items-start">
+                                    <img :src="'https://api.dicebear.com/7.x/initials/svg?seed=' + friend.name" class="w-14 h-14 rounded-xl border border-slate-700 bg-slate-900 shadow-md">
+                                    <div class="space-y-1">
+                                        <h4 class="text-base font-bold text-slate-100 hover:text-amber-400 transition-colors" x-text="friend.name"></h4>
+                                        <p class="text-xs text-slate-400"><i class="fa-solid fa-user-shield text-[10px] text-emerald-500 mr-1"></i> <span x-text="friend.guide"></span></p>
                                     </div>
+                                </div>
+                                <p class="text-xs text-slate-300 line-clamp-2 mt-3 italic">"<span x-text="friend.memory"></span>"</p>
+                                
+                                <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center text-xs text-amber-400/80 font-semibold">
+                                    <span>👉 <span x-text="lang === 'bn' ? 'স্মৃতি ও গ্যালারি দেখুন' : 'View Memories & Gallery'"></span></span>
+                                    <template x-if="isAdmin">
+                                        <button @click.stop="deleteFriend(friend.id, index)" class="text-[11px] bg-red-950 border border-red-500/20 text-red-400 px-2 py-0.5 rounded hover:bg-red-900 hover:text-white transition-all">Remove</button>
+                                    </template>
                                 </div>
                             </div>
                         </template>
@@ -123,7 +137,75 @@
                 </div>
             </div>
 
-            <div x-show="currentTab === 'funzone'" x-transition class="space-y-6">
+            <div x-show="selectedFriend" x-transition class="space-y-6">
+                <template x-if="selectedFriend">
+                    <div>
+                        <button @click="selectedFriend = null; currentTab = 'baksho'" class="mb-4 glass border border-slate-700 text-xs px-4 py-2 rounded-xl text-slate-300 hover:text-emerald-400 flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-arrow-left"></i> <span x-text="lang === 'bn' ? 'মিমের বাক্স-এ ফিরে যান' : 'Back to Mimer Baksho'"></span>
+                        </button>
+
+                        <div class="glass p-6 rounded-2xl border-l-4 border-amber-500 space-y-4 relative">
+                            <div class="flex flex-col sm:flex-row gap-5 items-center">
+                                <img :src="'https://api.dicebear.com/7.x/initials/svg?seed=' + selectedFriend.name" class="w-20 h-20 rounded-2xl bg-slate-900 border-2 border-amber-500/40 p-1">
+                                <div class="text-center sm:text-left space-y-1">
+                                    <h2 class="text-2xl font-bold text-slate-100" x-text="selectedFriend.name"></h2>
+                                    <p class="text-xs text-emerald-400"><strong x-text="t('guideFriend')"></strong>: <span x-text="selectedFriend.guide"></span></p>
+                                    <p class="text-xs text-slate-300"><strong x-text="t('familyStatus')"></strong>: <span x-text="selectedFriend.family"></span></p>
+                                </div>
+                                <div class="sm:ml-auto flex gap-2">
+                                    <a :href="selectedFriend.fbLink" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2 rounded-xl font-bold flex items-center gap-1.5 transition-all">
+                                        <i class="fa-brands fa-facebook text-sm"></i> Facebook Profile
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-800 text-sm italic text-amber-100">
+                                "<span x-text="selectedFriend.memory"></span>"
+                            </div>
+                        </div>
+
+                        <div class="glass p-5 rounded-2xl mt-6 space-y-3">
+                            <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider"><i class="fa-solid fa-images text-amber-400 mr-1"></i> <span x-text="lang === 'bn' ? 'স্মৃতি অ্যালবাম ও ছবি' : 'Memory Album & Photos'"></span></h4>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300" class="rounded-xl border border-slate-800 hover:scale-105 transition-transform cursor-zoom-in h-24 w-full object-cover">
+                                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300" class="rounded-xl border border-slate-800 hover:scale-105 transition-transform cursor-zoom-in h-24 w-full object-cover">
+                                <div class="bg-slate-900 rounded-xl border-2 border-dashed border-slate-800 flex flex-col items-center justify-center text-center p-2 cursor-pointer hover:bg-slate-800">
+                                    <i class="fa-solid fa-cloud-arrow-up text-slate-500 mb-1"></i>
+                                    <span class="text-[10px] text-slate-400" x-text="lang === 'bn' ? 'নতুন ছবি যোগ করুন' : 'Upload Photo'"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="glass p-5 rounded-2xl h-fit">
+                                <h4 class="text-sm font-bold text-slate-200 mb-3"><i class="fa-solid fa-pen-nib text-emerald-400 mr-1"></i> <span x-text="lang === 'bn' ? 'তার সাথে আপনার বিশেষ অভিজ্ঞতা শেয়ার করুন' : 'Share your experience with him'"></span></h4>
+                                <div class="space-y-3">
+                                    <input x-model="friendMemoryForm.author" type="text" :placeholder="lang === 'bn' ? 'আপনার নাম (Your Name)' : 'Your Name'" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                                    <textarea x-model="friendMemoryForm.content" rows="3" :placeholder="lang === 'bn' ? 'তার কোন কথা বা স্মৃতিটি আজও আপনাকে অনুপ্রাণিত করে?' : 'Any memory you want to lock forever?'" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500"></textarea>
+                                    <button @click="submitFriendMemory()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-slate-950 font-bold text-xs py-2.5 rounded-xl transition-all" x-text="lang === 'bn' ? 'স্মৃতি বাক্সে জমা দিন 📦' : 'Lock Memory 📦'"></button>
+                                </div>
+                            </div>
+
+                            <div class="glass p-5 rounded-2xl space-y-4">
+                                <h4 class="text-sm font-bold text-slate-200 border-b border-slate-800 pb-2"><i class="fa-solid fa-comments text-amber-400 mr-1"></i> <span x-text="lang === 'bn' ? 'বন্ধুদের ডায়েরি' : 'Classmates Diary'"></span></h4>
+                                <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
+                                    <template x-for="mem in selectedFriendMemories" :key="mem.id">
+                                        <div class="bg-slate-900/60 border border-slate-800 p-3 rounded-xl space-y-1">
+                                            <div class="flex justify-between items-center text-[10px]">
+                                                <span class="font-bold text-slate-300" x-text="mem.author"></span>
+                                                <span class="text-slate-500" x-text="mem.time"></span>
+                                            </div>
+                                            <p class="text-xs text-slate-400 leading-relaxed" x-text="mem.content"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </template>
+            </div>
+
+            <div x-show="currentTab === 'funzone' && !selectedFriend" x-transition class="space-y-6">
                 <div class="glass p-6 rounded-2xl border border-purple-500/20">
                     <h3 class="text-lg font-bold text-purple-300 mb-2" x-text="t('rouletteTitle')"></h3>
                     <p class="text-xs text-slate-400 mb-4" x-text="t('rouletteDesc')"></p>
@@ -134,7 +216,7 @@
                 </div>
             </div>
 
-            <div x-show="currentTab === 'planner'" x-transition class="space-y-6">
+            <div x-show="currentTab === 'planner' && !selectedFriend" x-transition class="space-y-6">
                 <div class="glass p-5 rounded-2xl">
                     <h3 class="text-base font-bold text-slate-200 mb-4" x-text="t('tabEvents')"></h3>
                     <div class="border border-slate-800 bg-slate-900/40 p-4 rounded-xl flex gap-4">
@@ -149,28 +231,30 @@
                 </div>
             </div>
 
-            <div x-show="currentTab === 'admin'" x-transition class="space-y-6">
+            <div x-show="currentTab === 'admin' && isAdmin && !selectedFriend" x-transition class="space-y-6">
                 <div class="glass p-6 rounded-2xl border border-red-500/20">
-                    <h3 class="text-lg font-bold text-red-400 mb-2">অ্যাডমিন ডাটা প্রি-পপুলেশন ইঞ্জিন (Pre-populate Dashboard)</h3>
-                    <p class="text-xs text-slate-400 mb-6">অ্যাপটি সম্পূর্ণ লাইভ করার আগে, আপনার প্রয়াত বন্ধুদের বিবরণ এখানে যুক্ত করুন। নিচে জেনারেট হওয়া কোডটি কপি করে আপনার স্থায়ী সোর্সে পেস্ট করলেই এটি সবার জন্য ফিক্সড হয়ে যাবে।</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-red-400">অ্যাডমিন ডাটা কন্ট্রোল ইঞ্জিন (Verified Control)</h3>
+                        <button @click="logoutAdmin()" class="bg-slate-800 text-slate-400 border border-slate-700 px-3 py-1 rounded text-xs hover:text-white">Logout Admin</button>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-6">নিচে আপনার হারিয়ে যাওয়া বন্ধুদের বিবরণ যুক্ত করতে পারেন। নতুন ডাটা ইনস্ট্যান্ট মিমের বাক্স ডিরেক্টরিতে অ্যাড হয়ে যাবে এবং আপনি অ্যাডমিন মোড অন রেখে যেকোনো ডামি পোস্ট সরাসরি ডিলিট করতে পারবেন।</p>
                     
                     <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
                         <h4 class="text-xs font-bold text-slate-300 uppercase">নতুন বিবরণ এন্ট্রি ফরম</h4>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <input x-model="adminForm.name" type="text" placeholder="বন্ধুর নাম (Friend's Name)" class="bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200">
-                            <input x-model="adminForm.guide" type="text" placeholder="সবচেয়ে যুক্ত গাইড বন্ধু ও ফোন নম্বর" class="bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200">
-                            <input x-model="adminForm.fbLink" type="text" placeholder="ফেসবুক প্রোফাইল বা স্মৃতি লিঙ্ক" class="bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200">
-                            <input x-model="adminForm.family" type="text" placeholder="পরিবারের বর্তমান অবস্থা ও অবস্থান" class="bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200">
+                            <input x-model="adminForm.name" type="text" placeholder="বন্ধুর নাম (Friend's Name)" class="bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200 focus:outline-none">
+                            <input x-model="adminForm.guide" type="text" placeholder="সবচেয়ে যুক্ত গাইড বন্ধু ও ফোন নম্বর" class="bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200 focus:outline-none">
+                            <input x-model="adminForm.fbLink" type="text" placeholder="ফেসবুক প্রোফাইল বা স্মৃতি লিঙ্ক" class="bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200 focus:outline-none">
+                            <input x-model="adminForm.family" type="text" placeholder="পরিবারের বর্তমান অবস্থা ও অবস্থান" class="bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200 focus:outline-none">
                         </div>
-                        <textarea x-model="adminForm.memory" placeholder="তার সম্পর্কে ব্যাচের একটি বিশেষ স্মৃতি বা উক্তি..." class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200" rows="2"></textarea>
+                        <textarea x-model="adminForm.memory" placeholder="তার সম্পর্কে ব্যাচের একটি বিশেষ স্মৃতি বা উক্তি..." class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200 focus:outline-none" rows="2"></textarea>
                         
-                        <button @click="addFriendFromAdmin()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-4 py-2 rounded font-bold">তাত্ক্ষণিক অ্যাড করুন</button>
+                        <button @click="addFriendFromAdmin()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-4 py-2 rounded font-bold">তাত্ক্ষণিক ডিরেক্টরিতে যুক্ত করুন</button>
                     </div>
 
                     <div class="mt-6 space-y-2">
-                        <h4 class="text-xs font-bold text-emerald-400 uppercase">২. স্থায়ী কোড জেনারেটর (গিটহাবে পেস্ট করার জন্য)</h4>
-                        <p class="text-[11px] text-slate-400">নিচের বক্সের কোডটি কপি করে আপনার মূল `index.html` ফাইলের `deceasedFriends:` অ্যারের জায়গায় রিপ্লেস করে দিলেই ডাটা স্থায়ী হয়ে যাবে!</p>
-                        <textarea readonly class="w-full bg-black text-green-400 p-3 rounded-lg font-mono text-[10px]" rows="5" x-text="JSON.stringify(deceasedFriends, null, 2)"></textarea>
+                        <h4 class="text-xs font-bold text-emerald-400 uppercase">২. ব্যাকআপ লোকাল সোর্স কোড ডাটা</h4>
+                        <textarea readonly class="w-full bg-black text-green-400 p-3 rounded-lg font-mono text-[10px]" rows="4" x-text="JSON.stringify(deceasedFriends, null, 2)"></textarea>
                     </div>
                 </div>
             </div>
@@ -180,8 +264,9 @@
 
     <script>
         const SUPABASE_URL = "https://cmpwkfsqkxubkbifnhcv.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_JGBRT-NVMhLHM1xeY-CpHg_5hWEM0gj";
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_ANON_KEY = "sb_publishable_JGBRT-NVMhLHM1xeY-CpHg_5hWEM0gj";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         function appState() {
             return {
                 lang: 'bn',
@@ -190,35 +275,38 @@
                 newPostText: '',
                 currentMemoryPrompt: '🎡 Click spin to get a nostalgia challenge question!',
                 
-                // Form Holder
+                // Admin State Configuration
+                isAdmin: false,
+                adminSecret: 'Dinajpur2002_MiM$@', // 👈 আপনি চাইলে আপনার পছন্দমত পাসওয়ার্ড এখানে এডিট করতে পারেন
                 adminForm: { name: '', guide: '', fbLink: '', family: '', memory: '' },
 
-                // PRE-POPULATED INITIAL DECEASED FRIENDS DATA (Admin can replace this default text)
+                // Friend Profiles Sub-page navigation engine state holder
+                selectedFriend: null,
+                selectedFriendMemories: [],
+                friendMemoryForm: { author: '', content: '' },
+
                 deceasedFriends: [
-                    { id: 1, name: "তানভীর আহমেদ (জিলা স্কুল)", guide: "রাসেল মাহমুদ (0171X-XXXXXX)", fbLink: "https://facebook.com", family: "মা ও ছোট বোন বর্তমানে চিরিরবন্দরে আছেন।", memory: "টিফিনের টাকা বাঁচিয়ে বন্ধুদের খাইয়ে দিত ও।" },
-                    { id: 2, name: "সুমন দেবনাথ (দিনাজপুর একাডেমী)", guide: "আসিফ ইকবাল (0172X-XXXXXX)", fbLink: "https://facebook.com", family: "পরিবার দিনাজপুর শহরের কালীতলায় স্থায়ীভাবে আছেন।", memory: "ক্রিকেট পিচে ওর মতন অলরাউন্ডার আমাদের ব্যাচে আর কেউ ছিল না।" }
+                    { id: 1, name: "তানভীর আহমেদ (জিলা স্কুল)", guide: "রাসেল মাহমুদ (0171X-XXXXXX)", fbLink: "https://facebook.com", family: "মা ও ছোট বোন বর্তমানে চিরিরবন্দরে আছেন।", memory: "টিফিনের টাকা বাঁচিয়ে বন্ধুদের খাইয়ে দিত ও।" },
+                    { id: 2, name: "সুমন দেবনাথ (দিনাজপুর একাডেমী)", guide: "আসিফ ইকবাল (0172X-XXXXXX)", fbLink: "https://facebook.com", family: "পরিবার দিনাজপুর শহরের কালীতলায় স্থায়ীভাবে আছেন।", memory: "ক্রিকেট পিচে ওর মতন অলরাউন্ডার আমাদের ব্যাচে আর কেউ ছিল না।" }
                 ],
 
-                posts: [
-                    { author: 'রাসেল আহমেদ', time: '10 Mins Ago', content: 'দিনাজপুর গোর-এ-শহীদ বড় মাঠের কোণার সেই চায়ের আড্ডাটার কথা মনে আছে?' }
-                ],
+                posts: [],
 
-                // Dynamic Translation Dictionary
                 dictionary: {
                     bn: {
                         appName: "দিনাজপুর ০২ কানেক্ট", level: "লেভেল", tabTimeline: "সাইবার টাইমলাইন", tabBaksho: "মিমের বাক্স 📦",
-                        tabFun: "ফান জোন 🎮", tabEvents: "ইভেন্ট প্ল্যানার", tabAdmin: "অ্যাডমিন প্যানেল", postPlaceholder: "দিনাজপুরের কোনো হারানো স্মৃতি শেয়ার করো...",
-                        liveStatus: "🟢 লাইভ নেটওয়ার্ক একটিভ", btnPost: "রিলিজ পোস্ট 🚀", bakshoTitle: "মিমের বাক্স (আমাদের পবিত্র দায়িত্ব)",
-                        bakshoDesc: "হারিয়ে যাওয়া বন্ধুদের স্মরণে এবং তাদের পরিবারের পাশে দাঁড়াতে আমাদের একটি স্থায়ী সম্মানসূচক ব্যাচ প্রজেক্ট।",
+                        tabFun: "ফান জোন 🎮", tabEvents: "ইভেন্ট প্ল্যানার", tabAdmin: "অ্যাডমিন প্যানেল", postPlaceholder: "দিনাজপুরের কোনো হারানো স্মৃতি শেয়ার করো...",
+                        liveStatus: "🟢 লাইভ নেটওয়ার্ক একটিভ", btnPost: "রিলিজ পোস্ট 🚀", bakshoTitle: "মিমের বাক্স (আমাদের পবিত্র দায়িত্ব)",
+                        bakshoDesc: "হারিয়ে যাওয়া বন্ধুদের স্মরণে এবং তাদের পরিবারের পাশে দাঁড়াতে আমাদের একটি স্থায়ী সম্মানসূচক ব্যাচ প্রজেক্ট। (বন্ধুর প্রোফাইলে ঢুকতে নামের উপর ক্লিক করুন)",
                         guideFriend: "প্রধান গাইড বন্ধু", familyStatus: "পরিবারের অবস্থা", rouletteTitle: "নস্টালজিয়া রুলেট 🎡",
-                        rouletteDesc: "চাকা ঘোরান এবং যেকোনো একটি দৈব স্মৃতির প্রশ্নের উত্তর দিয়ে টাইমলাইনে পোস্ট করুন!", btnSpin: "চাকা ঘোরান 🎯",
+                        rouletteDesc: "চাকা ঘোরান এবং যেকোনো একটি দৈব স্মৃতির প্রশ্নের উত্তর দিয়ে টাইমলাইনে পোস্ট করুন!", btnSpin: "চাকা ঘোরান 🎯",
                         sampleEventTitle: "ঈদ পরবর্তী মিলনমেলা ও স্মৃতিচারণ আড্ডা ২০২৬"
                     },
                     en: {
                         appName: "Dinajpur 02 Connect", level: "Level", tabTimeline: "Cyber Timeline", tabBaksho: "Mimer Baksho 📦",
                         tabFun: "Fun Zone 🎮", tabEvents: "Event Planner", tabAdmin: "Admin Dashboard", postPlaceholder: "Share an old memory of Dinajpur school days...",
                         liveStatus: "🟢 Live Network Active", btnPost: "Release Post 🚀", bakshoTitle: "Mimer Baksho (Our Duty Hub)",
-                        bakshoDesc: "A dedicated space to honor our deceased friends and directly connect with their families with dignity.",
+                        bakshoDesc: "A dedicated space to honor our deceased friends. Click on any friend's name to view their profile.",
                         guideFriend: "Main Guide Friend", familyStatus: "Family Update", rouletteTitle: "Nostalgia Roulette 🎡",
                         rouletteDesc: "Spin the wheel to get a random old memory prompt to share on the feed!", btnSpin: "Spin Wheel 🎯",
                         sampleEventTitle: "Post-Eid Reunion & Nostalgia Meetup 2026"
@@ -229,7 +317,11 @@
                     if(localStorage.getItem('saved_friends')) {
                         this.deceasedFriends = JSON.parse(localStorage.getItem('saved_friends'));
                     }
-                    this.currentMemoryPrompt = this.lang === 'bn' ? '🎡 একটি স্মৃতি বিষয়ক প্রশ্ন পেতে স্পিন করুন!' : '🎡 Click spin to get a nostalgia question!';
+                    if(localStorage.getItem('admin_session') === 'active') {
+                        this.isAdmin = true;
+                    }
+                    this.currentMemoryPrompt = this.lang === 'bn' ? '🎡 একটি স্মৃতি বিষয়ক প্রশ্ন পেতে স্পিন করুন!' : '🎡 Click spin to get a nostalgia question!';
+                    this.fetchLivePosts();
                 },
 
                 t(key) {
@@ -238,14 +330,104 @@
 
                 toggleLang() {
                     this.lang = this.lang === 'bn' ? 'en' : 'bn';
-                    this.currentMemoryPrompt = this.lang === 'bn' ? '🎡 একটি স্মৃতি বিষয়ক প্রশ্ন পেতে স্পিন করুন!' : '🎡 Click spin to get a nostalgia question!';
+                    this.currentMemoryPrompt = this.lang === 'bn' ? '🎡 একটি স্মৃতি বিষয়ক প্রশ্ন পেতে স্পিন করুন!' : '🎡 Click spin to get a nostalgia question!';
                 },
 
-                addPost() {
+                handleAdminTabClick() {
+                    if (this.isAdmin) {
+                        this.currentTab = 'admin';
+                    } else {
+                        let password = prompt(this.lang === 'bn' ? "অ্যাডমিন পাসওয়ার্ড প্রদান করুন:" : "Enter Admin Password:");
+                        if (password === this.adminSecret) {
+                            this.isAdmin = true;
+                            localStorage.setItem('admin_session', 'active');
+                            this.currentTab = 'admin';
+                            confetti({ particleCount: 50 });
+                        } else if (password !== null) {
+                            alert(this.lang === 'bn' ? "ভুল পাসওয়ার্ড!" : "Incorrect Password!");
+                        }
+                    }
+                },
+
+                logoutAdmin() {
+                    this.isAdmin = false;
+                    localStorage.removeItem('admin_session');
+                    this.currentTab = 'feed';
+                },
+
+                async fetchLivePosts() {
+                    let { data, error } = await _supabase.from('posts').select('*').order('created_at', { ascending: false });
+                    if (!error && data) {
+                        this.posts = data.map(p => ({
+                            id: p.id,
+                            author: p.author || 'Anonymous',
+                            time: p.created_at ? new Date(p.created_at).toLocaleTimeString() : 'Just Now',
+                            content: p.content
+                        }));
+                    }
+                },
+
+                async addPost() {
                     if(!this.newPostText.trim()) return;
-                    this.posts.unshift({ author: 'You (Admin)', time: 'Just Now', content: this.newPostText });
-                    this.newPostText = '';
-                    this.userXP += 10;
+                    const authorName = this.isAdmin ? 'You (Admin)' : (this.lang === 'bn' ? 'ব্যাচমেট বন্ধু' : 'Classmate');
+                    const newPost = {
+                        author: authorName,
+                        content: this.newPostText,
+                        tag: 'সাধারণ পোস্ট'
+                    };
+                    let { error } = await _supabase.from('posts').insert([newPost]);
+                    if(!error) {
+                        this.newPostText = '';
+                        this.userXP += 10;
+                        this.fetchLivePosts();
+                        confetti({ particleCount: 30 });
+                    }
+                },
+
+                async deletePost(id, index) {
+                    if (!id) {
+                        this.posts.splice(index, 1);
+                        return;
+                    }
+                    if (confirm(this.lang === 'bn' ? "আপনি কি নিশ্চিতভাবে এই পোস্টটি ক্লাউড ডাটাবেজ থেকে ডিলিট করতে চান?" : "Are you sure you want to delete this post from the live database?")) {
+                        let { error } = await _supabase.from('posts').delete().eq('id', id);
+                        if (!error) {
+                            this.fetchLivePosts();
+                        } else {
+                            alert("Error deleting post!");
+                        }
+                    }
+                },
+
+                // IMERSIVE SUB-PAGE PROFILE ENGINE LOGIC
+                openFriendProfile(friend) {
+                    this.selectedFriend = friend;
+                    // Load custom memories from local memory buffer specific to individual
+                    const savedMemories = localStorage.getItem(`memories_friend_${friend.id}`);
+                    if (savedMemories) {
+                        this.selectedFriendMemories = JSON.parse(savedMemories);
+                    } else {
+                        // Dummy populated seed memories
+                        this.selectedFriendMemories = [
+                            { id: 1, author: "আসিফ ইকবাল", time: "14/06/2026", content: this.lang === 'bn' ? "স্কুলের টিফিনের দিনগুলোর কথা খুব মনে পড়ে রে বন্ধু!" : "Missing our classroom laughs." }
+                        ];
+                    }
+                },
+
+                submitFriendMemory() {
+                    if(!this.friendMemoryForm.author.trim() || !this.friendMemoryForm.content.trim()) {
+                        return alert(this.lang === 'bn' ? 'দয়া করে আপনার নাম এবং স্মৃতি বিবরণ পূরণ করুন!' : 'Please fill both Name and Content!');
+                    }
+                    this.selectedFriendMemories.unshift({
+                        id: Date.now(),
+                        author: this.friendMemoryForm.author,
+                        time: new Date().toLocaleDateString(),
+                        content: this.friendMemoryForm.content
+                    });
+                    localStorage.setItem(`memories_friend_${this.selectedFriend.id}`, JSON.stringify(this.selectedFriendMemories));
+                    this.friendMemoryForm = { author: '', content: '' };
+                    this.userXP += 15;
+                    confetti({ particleCount: 40, spread: 50 });
                 },
 
                 addFriendFromAdmin() {
@@ -259,16 +441,22 @@
                         memory: this.adminForm.memory || 'Always in our hearts.'
                     });
                     localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends));
-                    // Reset Form
                     this.adminForm = { name: '', guide: '', fbLink: '', family: '', memory: '' };
                     confetti({ particleCount: 50, spread: 60 });
                 },
 
+                deleteFriend(id, index) {
+                    if (confirm(this.lang === 'bn' ? "আপনি কি ডিরেক্টরি থেকে এই বন্ধুর প্রোফাইলটি ডিলিট করতে চান?" : "Are you sure to remove this friend profile?")) {
+                        this.deceasedFriends.splice(index, 1);
+                        localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends));
+                    }
+                },
+
                 spinRoulette() {
                     let prompts = [
-                        "স্কুল লাইফে কোন শিক্ষকের ক্লাসে সবচেয়ে বেশি কড়া শাসন পেতেন?",
+                        "স্কুল লাইফে কোন শিক্ষকের ক্লাসে সবচেয়ে বেশি কড়া শাসন পেতেন?",
                         "Which spot in Dinajpur city was your favorite hangout after school?",
-                        "টিফিনের হাফ-টাইমে কার টিফিন বক্স সবচেয়ে আগে ফাঁকা হতো?",
+                        "টিফিনের হাফ-টাইমে কার টিফিনボックス সবচেয়ে আগে ফাঁকা হতো?",
                         "What is your most unforgettable memory of SSC exam days in 2002?"
                     ];
                     let count = 0;
