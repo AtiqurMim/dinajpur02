@@ -34,10 +34,10 @@
                     <i class="fa-solid fa-atom text-slate-950 text-2xl sm:text-3xl"></i>
                 </div>
                 <h2 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">দিনাজপুর ০২ কানেক্ট</h2>
-                <p class="text-[11px] sm:text-xs text-slate-400">ব্যাচমেটদের নিরাপদ ডেডিকেটেড সামাজিক মাধ্যমে আপনাকে স্বাগতম।</p>
+                <p class="text-[11px] sm:text-xs text-slate-400">নিরাপদ ব্যাচমেট পোর্টালে আপনার প্রোফাইল অ্যাক্সেস করুন।</p>
             </div>
 
-            <div x-show="authMode !== 'forgot'" class="grid grid-cols-3 gap-1 p-1 bg-slate-900 rounded-xl border border-slate-800">
+            <div x-show="authMode !== 'forgot' && authMode !== 'otp_verify'" class="grid grid-cols-3 gap-1 p-1 bg-slate-900 rounded-xl border border-slate-800">
                 <button @click="authMode = 'login'" :class="authMode === 'login' ? 'bg-emerald-600 text-slate-950 font-bold' : 'text-slate-400'" class="py-2 text-[10px] sm:text-xs rounded-lg transition-all">ইউজার লগইন</button>
                 <button @click="authMode = 'signup'" :class="authMode === 'signup' ? 'bg-emerald-600 text-slate-950 font-bold' : 'text-slate-400'" class="py-2 text-[10px] sm:text-xs rounded-lg transition-all">নিবন্ধন</button>
                 <button @click="authMode = 'admin_login'" :class="authMode === 'admin_login' ? 'bg-red-600 text-white font-bold' : 'text-red-400'" class="py-2 text-[10px] sm:text-xs rounded-lg transition-all">অ্যাডমিন মোড</button>
@@ -58,14 +58,24 @@
                     <button @click="triggerNativeFetch('WhatsApp')" :class="authForm.channel === 'WhatsApp' ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-slate-800 bg-slate-900 text-slate-400'" class="p-3 border rounded-xl flex items-center justify-center"><i class="fa-brands fa-whatsapp"></i></button>
                     <button @click="triggerNativeFetch('Phone')" :class="authForm.channel === 'Phone' ? 'border-sky-500 bg-sky-500/10 text-sky-400' : 'border-slate-800 bg-slate-900 text-slate-400'" class="p-3 border rounded-xl flex items-center justify-center"><i class="fa-solid fa-phone"></i></button>
                 </div>
-                <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">২. বিবরণ সেট করুন:</p>
+                <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">২. ব্যক্তিগত বিবরণ সেট করুন:</p>
                 <div class="space-y-2.5">
                     <input id="autofill-name" x-model="authForm.name" type="text" placeholder="আপনার পূর্ণ নাম" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 h-11 focus:outline-none">
                     <input id="autofill-identity" x-model="authForm.identity" type="text" :placeholder="'আপনার ' + authForm.channel + ' বিবরণ বা নম্বর দিন'" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 h-11 focus:outline-none">
                     <input x-model="authForm.school" type="text" placeholder="২০০২ সালের স্কুলের নাম (যেমন: জিলা স্কুল)" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 h-11 focus:outline-none">
                     <input x-model="authForm.password" type="password" placeholder="নতুন পাসওয়ার্ড সেট করুন" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 h-11 focus:outline-none">
                 </div>
-                <button @click="handleSignup()" class="w-full bg-emerald-600 text-slate-950 font-bold text-xs py-3.5 rounded-xl h-11">অ্যাকাউন্ট তৈরি করুন 🎉</button>
+                <button @click="handleSignupTrigger()" class="w-full bg-emerald-600 text-slate-950 font-bold text-xs py-3.5 rounded-xl h-11">নিরাপত্তা OTP কোড পাঠান 🚀</button>
+            </div>
+
+            <div x-show="authMode === 'otp_verify'" class="space-y-4" x-transition>
+                <div class="text-center space-y-1 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <p class="text-xs text-slate-400">আপনার ভেরিফিকেশন কন্টাক্ট আইডিতে (<span class="text-emerald-400 font-mono" x-text="authForm.identity"></span>) একটি ৪-ডিজিটের নিরাপত্তা OTP কোড পাঠানো হয়েছে।</p>
+                    <p class="text-[10px] text-amber-400/80 font-mono tracking-wider">সিমুলেশন টেস্ট কোড: <span x-text="generatedOtp" class="font-bold text-sm text-amber-400"></span></p>
+                </div>
+                <input x-model="enteredOtp" type="text" maxlength="4" placeholder="৪-ডিজিটের OTP কোড লিখুন" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-center text-lg tracking-widest text-emerald-400 font-mono focus:outline-none focus:border-emerald-500 h-11">
+                <button @click="verifyOtpAndSignup()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-slate-950 font-bold text-xs py-3.5 rounded-xl transition-all h-11">কোড ভেরিফাই ও সাইন-আপ সম্পন্ন করুন 🛡️</button>
+                <button @click="authMode = 'signup'" class="text-xs text-slate-500 hover:text-white block mx-auto pt-1">পেছনে যান</button>
             </div>
 
             <div x-show="authMode === 'admin_login'" class="space-y-3" x-transition>
@@ -137,6 +147,13 @@
         <main class="w-full lg:w-3/4">
 
             <div x-show="currentTab === 'feed' && !selectedFriend" x-transition class="space-y-4">
+                <template x-for="notif in friendNotifications" :key="notif.id">
+                    <div x-show="notif.target_guide === currentUser.name" class="p-3 bg-emerald-950/80 border border-emerald-500/30 rounded-xl text-xs text-emerald-400 flex justify-between items-center shadow-lg">
+                        <p x-text="notif.message"></p>
+                        <button @click="dismissNotification(notif.id)" class="text-slate-400 hover:text-white ml-2"><i class="fa-solid fa-square-xmark"></i></button>
+                    </div>
+                </template>
+
                 <div class="glass p-4 rounded-2xl">
                     <div class="flex gap-3">
                         <img :src="'https://api.dicebear.com/7.x/bottts/svg?seed=' + currentUser.name" class="w-9 h-9 rounded-xl bg-slate-800 border" alt="Avatar">
@@ -189,7 +206,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-4 pt-2 border-t border-slate-800/60 flex justify-between items-center text-[11px] text-amber-400/80 font-bold">
-                                    <span>👉 প্রোফাইল, ফ্যামিলি ও কবরস্থান ম্যাপ</span>
+                                    <span>👉 প্রোফাইল, পরিবার ও কবরস্থান ম্যাপ</span>
                                     <template x-if="isAdmin">
                                         <button @click.stop="deleteFriend(friend.id, index)" class="bg-red-950 border border-red-500/20 text-red-400 px-2 py-0.5 rounded text-[10px]">Remove Permanently</button>
                                     </template>
@@ -220,60 +237,82 @@
                         </div>
 
                         <div class="glass p-4 rounded-2xl border border-emerald-500/20 space-y-3">
-                            <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider"><i class="fa-solid fa-map-location-dot animate-bounce"></i> কবরস্থানের লাইভ ডিরেকশন ও লোকেশন ম্যাপ (Live Navigation)</h4>
-                            <p class="text-[11px] text-slate-400">নিচে তাদের নির্দিষ্ট কবরস্থানের গ্লোবাল পজিশনিং জিপিএস লিঙ্ক যুক্ত করা আছে। সরাসরি ফোনে ম্যাপ ডিরেকশন ও নেভিগেশন অন করতে বোতামে চাপুন।</p>
+                            <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider"><i class="fa-solid fa-map-location-dot"></i> কবরস্থানের লাইভ ডিরেকশন ও জিপিএস লোকেশন ম্যাপ</h4>
                             <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
                                 <div class="text-xs space-y-1 text-center sm:text-left">
-                                    <p class="font-bold text-slate-200"><i class="fa-solid fa-location-crosshairs text-amber-500"></i> গোরস্তান লোকেশন: <span x-text="selectedFriend.graveyard_location || 'দিনাজপুর সদর গোরস্থান / পারিবারিক কবরস্থান'"></span></p>
-                                    <p class="text-[10px] text-slate-500">GPS Route Integration Enabled • Real-Time Update</p>
+                                    <p class="font-bold text-slate-200"><i class="fa-solid fa-location-crosshairs text-amber-500"></i> গোরস্তান পজিশন: <span x-text="selectedFriend.graveyard_location || 'দিনাজপুর সদর গোরস্থান / পারিবারিক গোরস্থান'"></span></p>
+                                    <p class="text-[10px] text-slate-500">GPS Navigation Routing Engine Activated</p>
                                 </div>
-                                <a :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(selectedFriend.graveyard_location || (selectedFriend.name + ' Graveyard Dinajpur'))" target="_blank" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-lg shadow-emerald-500/10 hover:scale-105 transition-transform"><i class="fa-solid fa-diamond-turn-right"></i> গুগল ম্যাপে ডিরেকশন দেখুন (Live Direction)</a>
+                                <a :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(selectedFriend.graveyard_location || (selectedFriend.name + ' Graveyard Dinajpur'))" target="_blank" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-lg shadow-emerald-500/10"><i class="fa-solid fa-diamond-turn-right"></i> গুগল ম্যাপে ডিরেকশন দেখুন (Live Direction)</a>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-                            <div class="glass p-4 rounded-xl border text-xs space-y-1">
-                                <h4 class="font-bold text-slate-400 text-[10px] mb-1">পিতা ও মাতা</h4>
-                                <p><span class="text-slate-500">পিতা:</span> <span class="text-slate-200" x-text="selectedFriend.family_details?.father || 'N/A'"></span></p>
-                                <p><span class="text-slate-500">মাতা:</span> <span class="text-slate-200" x-text="selectedFriend.family_details?.mother || 'N/A'"></span></p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs">
+                            <div class="glass p-4 rounded-xl border space-y-2">
+                                <h4 class="font-bold text-purple-400 text-[10px] uppercase tracking-wider border-b border-slate-800 pb-1"><i class="fa-solid fa-users"></i> পিতামাতা ও অভিভাবক আপডেট</h4>
+                                <p><span class="text-slate-500 font-semibold">পিতা:</span> <span class="text-slate-200" x-text="selectedFriend.family_details?.father || 'N/A'"></span></p>
+                                <p><span class="text-slate-500 font-semibold">মাতা:</span> <span class="text-slate-200" x-text="selectedFriend.family_details?.mother || 'N/A'"></span></p>
+                                <p><span class="text-slate-500 font-semibold">পিতা/মাতার কন্টাক্ট:</span> <span class="text-slate-200 font-mono" x-text="selectedFriend.family_details?.parents_contact || 'N/A'"></span></p>
                             </div>
-                            <div class="glass p-4 rounded-xl border text-xs space-y-1"><h4 class="font-bold text-slate-400 text-[10px] mb-1">জীবনসঙ্গী</h4><p><span class="text-slate-500">নাম:</span> <span class="text-slate-200" x-text="selectedFriend.family_details?.spouse || 'N/A'"></span></p></div>
-                            <div class="glass p-4 rounded-xl border text-xs space-y-1"><h4 class="font-bold text-slate-400 text-[10px] mb-1">সন্তানাদি</h4><p><span class="text-slate-500">সন্তান সংখ্যা:</span> <span class="text-sky-400 font-bold" x-text="selectedFriend.family_details?.children_count || '0'"></span> জন</p></div>
+                            <div class="glass p-4 rounded-xl border space-y-2">
+                                <h4 class="font-bold text-rose-400 text-[10px] uppercase tracking-wider border-b border-slate-800 pb-1"><i class="fa-solid fa-heart"></i> জীবনসঙ্গী ও বৈবাহিক অবস্থা</h4>
+                                <p><span class="text-slate-500 font-semibold">নাম (Spouse Name):</span> <span class="text-slate-200" x-text="selectedFriend.family_details?.spouse || 'N/A'"></span></p>
+                                <p><span class="text-slate-500 font-semibold">স্ত্রী/পরিবার কন্টাক্ট:</span> <span class="text-slate-200 font-mono" x-text="selectedFriend.family_details?.spouse_contact || 'N/A'"></span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="glass p-4 rounded-xl border text-xs space-y-2 mt-4">
+                            <h4 class="font-bold text-sky-400 text-[10px] uppercase tracking-wider border-b border-slate-800 pb-1"><i class="fa-solid fa-child-reaching"></i> সন্তানাদি ও বর্তমান পারিবারিক ও আর্থিক অবস্থা</h4>
+                            <p><span class="text-slate-500 font-semibold">মোট সন্তান সংখ্যা:</span> <span class="text-sky-400 font-bold" x-text="selectedFriend.family_details?.children_count || '0'"></span> জন</p>
+                            <p><span class="text-slate-500 font-semibold">সন্তানদের বিবরণ (নাম ও ক্লাস):</span> <span class="text-slate-200" x-text="selectedFriend.family_details?.children_info || 'N/A'"></span></p>
+                            <div class="mt-2 p-2 rounded border border-slate-800 bg-slate-900/40 text-[11px] text-amber-300">
+                                <i class="fa-solid fa-triangle-exclamation"></i> <strong>সহায়তা অবস্থা ক্যাটাগরি:</strong> 
+                                <span x-text="selectedFriend.financial_status === 'Stable' ? 'পরিবার স্বাবলম্বী (Stable Conditions)' : (selectedFriend.financial_status === 'Needs Monthly Aid' ? 'মাসিক আর্থিক সহযোগিতা চলমান' : 'সন্তানদের এডুকেশনাল সাপোর্ট প্রয়োজন')"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="glass p-4 rounded-2xl h-fit">
+                                <h4 class="text-xs sm:text-sm font-bold text-slate-200 mb-2">স্মৃতিচারণ করুন</h4>
+                                <textarea x-model="friendMemoryForm.content" rows="2" placeholder="তার কোনো বিশেষ স্মৃতি যা শেয়ার করতে চান..." class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-xs text-slate-200 focus:outline-none"></textarea>
+                                <button @click="submitFriendMemory()" class="w-full bg-emerald-600 text-slate-950 font-bold text-xs py-2 mt-2 rounded-xl">জমা দিন 📦</button>
+                            </div>
+                            <div class="glass p-4 rounded-2xl">
+                                <h4 class="text-xs sm:text-sm font-bold text-slate-200 border-b border-slate-800 pb-1.5 mb-2">বন্ধুদের ডায়েরি</h4>
+                                <div class="space-y-2 max-h-48 overflow-y-auto pr-1 no-scrollbar">
+                                    <template x-for="mem in selectedFriendMemories" :key="mem.id">
+                                        <div class="bg-slate-900/60 border border-slate-800 p-2.5 rounded-xl text-xs">
+                                            <div class="flex justify-between text-[9px] text-slate-400 mb-0.5"><span class="font-bold text-slate-300" x-text="mem.author"></span><span x-text="mem.time"></span></div>
+                                            <p class="text-slate-400 leading-relaxed text-[11px]" x-text="mem.content"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </template>
             </div>
 
             <div x-show="currentTab === 'profile'" x-transition class="space-y-4">
-                <div class="glass p-5 rounded-2xl border border-teal-500/20 space-y-5">
-                    <div class="flex gap-4 items-center border-b border-slate-800 pb-4">
-                        <img :src="'https://api.dicebear.com/7.x/bottts/svg?seed=' + currentUser.name" class="w-16 h-14 rounded-2xl bg-slate-900 border border-slate-800 p-1">
-                        <div>
-                            <h3 class="text-lg font-bold text-slate-200" x-text="currentUser.name"></h3>
-                            <p class="text-xs text-slate-400" x-text="currentUser.school"></p>
-                        </div>
+                <div class="glass p-5 rounded-2xl border border-teal-500/20 space-y-4">
+                    <h3 class="text-base font-bold text-teal-400 uppercase tracking-wider text-[11px]">আমার প্রোফাইল বিবরণ ও কন্টাক্ট লিঙ্কস</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div><label class="block text-slate-400 mb-1">পূর্ণ নাম:</label><input x-model="currentUser.name" type="text" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-200 focus:outline-none"></div>
+                        <div><label class="block text-slate-400 mb-1">যোগাযোগ মাধ্যম (ফোন/জিমেইল):</label><input x-model="currentUser.contact" type="text" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-200 focus:outline-none"></div>
+                        <div><label class="block text-slate-400 mb-1">বর্তমান ঠিকানা:</label><input x-model="currentUser.address" type="text" placeholder="যেমন: ঢাকা / দিনাজপুর সদর" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-200 focus:outline-none"></div>
+                        <div><label class="block text-slate-400 mb-1">ফেসবুক আইডি লিঙ্ক:</label><input x-model="currentUser.fb" type="text" placeholder="https://facebook.com/..." class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-200 focus:outline-none"></div>
                     </div>
-
-                    <div class="space-y-4 text-xs">
-                        <h4 class="font-bold text-teal-400 uppercase tracking-wider text-[11px]">আমার প্রোফাইল বিবরণ ও কন্টাক্ট লিঙ্কস (Edit Profile Info)</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div><label class="block text-slate-400 mb-1">মোবাইল নম্বর/যোগাযোগ:</label><input x-model="currentUser.contact" type="text" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-200 focus:outline-none focus:border-teal-500"></div>
-                            <div><label class="block text-slate-400 mb-1">বর্তমান ঠিকানা/অবস্থান:</label><input x-model="currentUser.address" type="text" placeholder="যেমন: ঢাকা / দিনাজপুর সদর" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-200 focus:outline-none focus:border-teal-500"></div>
-                            <div><label class="block text-slate-400 mb-1">ফেসবুক প্রোফাইল লিঙ্ক (Full Link):</label><input x-model="currentUser.fb" type="text" placeholder="https://facebook.com/username" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-200 focus:outline-none focus:border-teal-500"></div>
-                            <div><label class="block text-slate-400 mb-1">হোয়াটসঅ্যাপ নম্বর:</label><input x-model="currentUser.wa" type="text" placeholder="01712000000" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-200 focus:outline-none focus:border-teal-500"></div>
-                        </div>
-                        <div>
-                            <label class="block text-slate-400 mb-1">ব্যক্তিগত পরিচিতি বা বায়ো (Short Bio):</label>
-                            <textarea x-model="currentUser.bio" rows="2" placeholder="আপনার বর্তমান পেশা, কর্মস্থল বা নিজের সম্পর্কে কিছু লিখুন..." class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-200 focus:outline-none focus:border-teal-500"></textarea>
-                        </div>
-                        <button @click="saveUserProfile()" class="bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-bold px-6 py-2.5 rounded-xl shadow-lg transition-transform hover:scale-105">প্রোফাইল ডাটা সেভ করুন 💾</button>
+                    <div class="text-xs">
+                        <label class="block text-slate-400 mb-1">ব্যক্তিগত বা প্রফেশনাল বায়ো (Bio):</label>
+                        <textarea x-model="currentUser.bio" rows="2" placeholder="আপনার পেশা বা কর্মস্থল সম্পর্কিত তথ্য..." class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-200 focus:outline-none"></textarea>
                     </div>
+                    <button @click="saveUserProfile()" class="bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-bold text-xs px-6 py-2.5 rounded-xl shadow-lg hover:scale-105 transition-transform">আমার প্রোফাইল ডাটা সেভ করুন 💾</button>
                 </div>
             </div>
 
             <div x-show="currentTab === 'opportunities'" x-transition class="space-y-4">
                 <div class="glass p-4 rounded-2xl border border-blue-500/20 space-y-3">
-                    <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider">নতুন পেশাগত সুযোগ শেয়ার করুন</h3>
+                    <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider">নতুন পেশাগত বা ক্যারিয়ার সুযোগ শেয়ার করুন</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                         <input x-model="opportunityForm.title" type="text" placeholder="কাজের শিরোনাম" class="bg-slate-950 border border-slate-800 p-2 rounded focus:outline-none text-slate-200 h-10">
                         <select x-model="opportunityForm.type" class="bg-slate-950 border border-slate-800 p-2 rounded focus:outline-none text-slate-200 h-10"><option value="Job Opportunity">Job Opportunity</option><option value="Business Offer">Business Offer</option></select>
@@ -320,6 +359,42 @@
                         <button @click="logoutAdmin()" class="bg-slate-900 text-slate-400 border border-slate-800 px-2 rounded text-[11px]">Exit Admin</button>
                     </div>
 
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-3 text-xs">
+                        <h4 class="font-bold text-teal-400 uppercase tracking-wider text-[11px]"><i class="fa-solid fa-users-gear"></i> ব্যাচমেট ইউজার ডিরেক্টরি ও অ্যাক্সেস কন্ট্রোল মডারেটর</h4>
+                        <p class="text-[11px] text-slate-400">নিচে রেজিস্টার্ড সাধারণ বন্ধুদের তালিকা দেওয়া হলো। এখান থেকে আপনি যেকোনো মেম্বারকে নতুন অ্যাডমিন রাইটস দিতে পারবেন এবং প্রয়াত বন্ধুদের অ্যাকাউন্ট সরাসরি মিমের বাক্স প্রোফাইলে স্থানান্তরিত করতে পারবেন।</p>
+                        
+                        <div class="overflow-x-auto no-scrollbar pt-1">
+                            <table class="w-full text-left border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr class="border-b border-slate-800 text-slate-400 font-bold uppercase text-[10px]">
+                                        <th class="pb-2">নাম ও স্কুল</th>
+                                        <th class="pb-2">যোগাযোগ নম্বর / আইডি</th>
+                                        <th class="pb-2">রোল / টাইপ</th>
+                                        <th class="pb-2 text-right">অ্যাকশন মডারেশন</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="(user, idx) in usersList" :key="user.id">
+                                        <tr class="border-b border-slate-800/40 text-slate-300">
+                                            <td class="py-2.5">
+                                                <span class="font-bold text-slate-100 block" x-text="user.name"></span>
+                                                <span class="text-[10px] text-slate-500" x-text="user.school"></span>
+                                            </td>
+                                            <td class="py-2.5 font-mono" x-text="user.contact"></td>
+                                            <td class="py-2.5">
+                                                <span :class="user.role === 'Admin' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-slate-800 text-slate-400'" class="text-[9px] font-bold px-1.5 py-0.5 border rounded" x-text="user.role"></span>
+                                            </td>
+                                            <td class="py-2.5 text-right space-x-1 whitespace-nowrap">
+                                                <button x-show="user.role !== 'Admin'" @click="promoteUserToAdmin(user.id, idx)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 text-[10px] px-2 py-1 rounded transition-colors">Make Admin</button>
+                                                <button @click="convertUserToDeceased(user.id, idx)" class="bg-amber-950 text-amber-400 hover:bg-amber-900 border border-amber-500/20 text-[10px] px-2 py-1 rounded transition-all"><i class="fa-solid fa-box-open text-[9px]"></i> Mark as Deceased</button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-xs">
                         <h4 class="font-bold text-red-400 mb-1">পাসওয়ার্ড রিসেট কিউ (<span x-text="resetRequestsQueue.length"></span>)</h4>
                         <template x-for="(req, idx) in resetRequestsQueue" :key="req.id">
@@ -334,16 +409,44 @@
                         </template>
                     </div>
 
-                    <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 space-y-2.5 text-xs">
+                    <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 space-y-3 text-xs">
                         <h4 class="font-bold text-slate-300 uppercase text-[11px]">নতুন প্রয়াত বন্ধুর এন্ট্রি ফরম</h4>
+                        
+                        <div class="flex flex-col sm:flex-row gap-3 items-center bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                            <label class="text-slate-400 font-bold">প্রোফাইল ছবি আপলোড:</label>
+                            <input type="file" accept="image/*" @change="processImageUpload($event)" class="text-slate-400 text-xs cursor-pointer w-full file:bg-emerald-600 file:border-0 file:rounded file:py-1 file:px-2 file:text-xs file:font-bold file:text-slate-950">
+                        </div>
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <input x-model="adminForm.name" type="text" placeholder="বন্ধুর নাম" class="bg-slate-950 border border-slate-800 p-2 rounded focus:outline-none text-slate-200">
-                            <input x-model="adminForm.image_url" type="text" placeholder="ছবি লিঙ্ক (Image URL)" class="bg-slate-950 border border-slate-800 p-2 rounded focus:outline-none text-slate-200">
                             <input x-model="adminForm.phone" type="text" placeholder="ফোন নম্বর" class="bg-slate-950 border border-slate-800 p-2 rounded focus:outline-none text-slate-200">
-                            <input x-model="adminForm.guide_friend_tagged" type="text" placeholder="সংযুক্ত বন্ধু (Tag Name)" class="bg-slate-950 border border-slate-800 p-2 rounded focus:outline-none text-slate-200">
-                            <input x-model="adminForm.graveyard_location" type="text" placeholder="কবরস্থানের নাম ও অবস্থান (উদা: মুন্সিপাড়া গোরস্তান)" class="bg-slate-950 border border-slate-800 p-2 rounded focus:outline-none text-slate-200">
+                            <input x-model="adminForm.guide_friend_tagged" type="text" placeholder="সংযুক্ত গাইড বন্ধু (Tag Name)" class="bg-slate-950 border border-slate-800 p-2 rounded focus:outline-none text-slate-200">
+                            <input x-model="adminForm.graveyard_location" type="text" placeholder="কবরস্থানের লাইভ গুগল ম্যাপের নাম বা স্থানাঙ্ক" class="bg-slate-950 border border-slate-800 p-2 rounded focus:outline-none text-slate-200">
                         </div>
-                        <button @click="addFriendFromAdmin()" class="w-full bg-red-600 font-bold py-2 rounded-xl text-white">ডিরেক্টরিতে সেভ করুন</button>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <input x-model="adminForm.father" type="text" placeholder="পিতার নাম" class="bg-slate-950 border border-slate-800 p-2 rounded text-slate-200">
+                            <input x-model="adminForm.mother" type="text" placeholder="মাতার নাম" class="bg-slate-950 border border-slate-800 p-2 rounded text-slate-200">
+                            <input x-model="adminForm.spouse" type="text" placeholder="জীবনসঙ্গী/স্ত্রীর নাম" class="bg-slate-950 border border-slate-800 p-2 rounded text-slate-200">
+                            <input x-model="adminForm.parents_contact" type="text" placeholder="পিতা/মাতার মোবাইল নম্বর" class="bg-slate-950 border border-slate-800 p-2 rounded text-slate-200">
+                            <input x-model="adminForm.spouse_contact" type="text" placeholder="জীবনসঙ্গীর কন্টাক্ট নম্বর" class="bg-slate-950 border border-slate-800 p-2 rounded text-slate-200">
+                            <input x-model="adminForm.children_count" type="number" placeholder="মোট সন্তান সংখ্যা" class="bg-slate-950 border border-slate-800 p-2 rounded text-slate-200">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <input x-model="adminForm.children_info" type="text" placeholder="সন্তানদের নাম, বয়স ও কে কোন ক্লাসে পড়ে" class="bg-slate-950 border border-slate-800 p-2 rounded text-slate-200">
+                            <select x-model="adminForm.financial_status" class="bg-slate-950 border border-slate-800 p-2 rounded text-slate-200 h-9">
+                                <option value="Stable">পরিবার স্বাবলম্বী (Stable Financial Condition)</option>
+                                <option value="Needs Monthly Aid">মাসিক আর্থিক सहायता প্রয়োজন</option>
+                                <option value="Needs Educational Support">বাচ্চাদের পড়াশোনার খরচ প্রয়োজন</option>
+                            </select>
+                        </div>
+                        <textarea x-model="adminForm.memory" placeholder="তার সম্পর্কে ব্যাচের একটি বিশেষ স্মৃতি..." class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200" rows="2"></textarea>
+                        <button @click="addFriendFromAdmin()" class="w-full bg-red-600 font-bold py-2 rounded-xl text-white">ডিরেক্টরিতে সরাসরি সেভ করুন</button>
+                    </div>
+
+                    <div class="mt-6 space-y-2">
+                        <h4 class="text-xs font-bold text-emerald-400 uppercase">৩. ব্যাকআপ লোকাল সোর্স কোড ডাটা</h4>
+                        <textarea readonly class="w-full bg-black text-green-400 p-3 rounded-lg font-mono text-[10px]" rows="4" x-text="JSON.stringify(deceasedFriends, null, 2)"></textarea>
                     </div>
                 </div>
             </div>
@@ -360,41 +463,59 @@
             return {
                 lang: 'bn', currentTab: 'feed', userXP: 100, newPostText: '', editingPostIndex: null, currentMemoryPrompt: '🎡 Spin wheel!',
                 isLoggedIn: false, authMode: 'login', adminLoginPassword: '',
-                currentUser: { id: '', name: '', school: '', contact: '', bio: '', address: '', fb: '', wa: '' },
+                generatedOtp: '', enteredOtp: '', friendNotifications: [],
+                currentUser: { id: '', name: '', school: '', contact: '', bio: '', address: '', fb: '', wa: '', role: 'User' },
                 authForm: { name: '', identity: '', password: '', school: '', channel: 'Phone' },
                 forgotForm: { identity: '' }, resetRequestsQueue: [],
                 opportunityForm: { title: '', type: 'Job Opportunity', details: '' }, opportunities: [],
                 helpForm: { type: 'Emergency Medical / Blood', details: '' }, helpRequests: [],
-                isAdmin: false, adminSecret: 'Dinajpur2002MiM139$', 
-                adminForm: { name: '', image_url: '', phone: '', phone_status: 'Active', phone_user: '', guide_friend_tagged: '', guide: '', fbLink: '', memory: '', graveyard_location: '' },
+                
+                isAdmin: false, 
+                adminSecret: 'Dinajpur2002MiM139$', // 👈 আপনার নির্দিষ্ট করা আল্ট্রা-সিকিউর মাস্টার পাসওয়ার্ড
+                
+                adminForm: { name: '', image_url: '', phone: '', phone_status: 'Active', phone_user: '', guide_friend_tagged: '', guide: '', fbLink: '', memory: '', graveyard_location: '', father: '', mother: '', spouse: '', parents_contact: '', spouse_contact: '', children_count: 0, children_info: '', financial_status: 'Stable' },
                 showSuggestionModal: false, suggestForm: { phone: '', phone_status: 'Active', phone_user: '', guide_friend_tagged: '', family_summary: '' }, suggestionsQueue: [],
                 selectedFriend: null, selectedFriendMemories: [], friendMemoryForm: { content: '' },
+                
                 deceasedFriends: [],
+                usersList: [], // 👈 রেজিস্টার্ড ইউজারদের ট্র্যাক করার সেন্ট্রাল ট্র্যাকিং অ্যারে
 
                 dictionary: {
-                    bn: { appName: "দিনাজপুর ০২ কানেক্ট", tabTimeline: "সাইবার টাইমলাইন", tabBaksho: "মিমের বাক্স 📦", tabOpportunities: "সুযোগ হাব 💼", tabNeedHelp: "সহায়তা কেন্দ্র 🚨", tabProfile: "আমার প্রোফাইল 👤", tabFun: "ফান জোন 🎮", tabEvents: "ইভেন্ট প্ল্যানার", tabGuide: "অ্যাপ ডাউনলোড গাইড 📱", tabAdmin: "অ্যাডমিন প্যানেল", postPlaceholder: "দিনাজপুরের কোনো হারানো স্মৃতি শেয়ার করো...", liveStatus: "🟢 লাইভ নেটওয়ার্ক একটিভ", btnPost: "পোস্ট রিলিজ করুন 🚀", bakshoTitle: "মিমের বাক্স (আমাদের পবিত্র দায়িত্ব)", bakshoDesc: "হারিয়ে যাওয়া বন্ধুদের স্মরণে আমাদের প্রজেক্ট। (বিস্তারিত ও ম্যাপ ডিরেক্টরি দেখতে কার্ডে ক্লিক করুন)", guideFriend: "প্রধান গাইড বন্ধু", familyStatus: "পরিবারের অবস্থা", rouletteTitle: "নস্টালজিয়া রুলেট 🎡", btnSpin: "চাকা ঘোরান 🎯", sampleEventTitle: "ঈদ পরবর্তী মিলনমেলা ও আড্ডা ২০২৬" },
-                    en: { appName: "Dinajpur 02 Connect", tabTimeline: "Cyber Timeline", tabBaksho: "Mimer Baksho 📦", tabOpportunities: "Opportunities Hub 💼", tabNeedHelp: "Help Center 🚨", tabProfile: "My Profile 👤", tabFun: "Fun Zone 🎮", tabEvents: "Event Planner", tabGuide: "Install App Guide 📱", tabAdmin: "Admin Dashboard", postPlaceholder: "Share old Dinajpur school memories...", liveStatus: "🟢 Live Network Active", btnPost: "Release Post 🚀", bakshoTitle: "Mimer Baksho (Our Responsibility Hub)", bakshoDesc: "Dedicated space to honor deceased batchmates. Click to view profile & graveyard maps.", guideFriend: "Main Guide Friend", familyStatus: "Family Update", rouletteTitle: "Nostalgia Roulette 🎡", btnSpin: "Spin Wheel 🎯", sampleEventTitle: "Post-Eid Batch Reunion 2026" }
+                    bn: { appName: "দিনাজপুর ০২ কানেক্ট", tabTimeline: "সাইবার টাইমলাইন", tabBaksho: "মিমের বাক্স 📦", tabOpportunities: "সুযোগ হাব 💼", tabNeedHelp: "সহায়তা কেন্দ্র 🚨", tabProfile: "আমার প্রোফাইল 👤", tabGuide: "অ্যাপ ডাউনলোড গাইড 📱", tabAdmin: "অ্যাডমিন প্যানেল", postPlaceholder: "দিনাজপুরের কোনো হারানো স্মৃতি শেয়ার করো...", liveStatus: "🟢 লাইভ নেটওয়ার্ক একটিভ", btnPost: "পোস্ট রিলিজ করুন 🚀", bakshoTitle: "মিমের বাক্স (আমাদের পবিত্র দায়িত্ব)", bakshoDesc: "হারিয়ে যাওয়া বন্ধুদের স্মরণে আমাদের প্রজেক্ট। (বিস্তারিত ও কবরস্থান জিপিএস রুট দেখতে কার্ডে ক্লিক করুন)", guideFriend: "প্রধান গাইড বন্ধু", familyStatus: "পরিবারের অবস্থা", rouletteTitle: "নস্টালজিয়া রুলেট 🎡", btnSpin: "চাকা ঘোরান 🎯", sampleEventTitle: "ঈদ পরবর্তী মিলনমেলা ও আড্ডা ২০২৬" },
+                    en: { appName: "Dinajpur 02 Connect", tabTimeline: "Cyber Timeline", tabBaksho: "Mimer Baksho 📦", tabOpportunities: "Opportunities Board 💼", tabNeedHelp: "Help Alert Center 🚨", tabProfile: "My Profile 👤", tabGuide: "Install App Guide 📱", tabAdmin: "Admin Dashboard", postPlaceholder: "Share old Dinajpur school memories...", liveStatus: "🟢 Live Network Active", btnPost: "Release Post 🚀", bakshoTitle: "Mimer Baksho (Our Responsibility Hub)", bakshoDesc: "Dedicated space to honor deceased batchmates. Click to view profiles & graveyard maps.", guideFriend: "Main Guide Friend", familyStatus: "Family Update", rouletteTitle: "Nostalgia Roulette 🎡", btnSpin: "Spin Wheel 🎯", sampleEventTitle: "Post-Eid Batch Reunion 2026" }
                 },
 
                 initApp() {
                     const sessionUser = localStorage.getItem('user_session');
                     if (sessionUser) { this.currentUser = JSON.parse(sessionUser); this.isLoggedIn = true; }
                     
-                    // Permanent Purge Isolation Protection Logic
+                    // Permanent Purge Isolation Protection Logic Loader
                     if(localStorage.getItem('baksho_purged_initialized')) {
                         this.deceasedFriends = JSON.parse(localStorage.getItem('saved_friends')) || [];
                     } else {
-                        // Direct Seeding Data on First Load only
                         this.deceasedFriends = [
-                            { id: 1, name: "তানভীর আহমেদ (জিলা স্কুল)", image_url: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200", phone: "01711-000000", phone_status: "Active", phone_user: "মা ব্যবহার করছেন", guide_friend_tagged: "রাসেল মাহমুদ", guide: "0171X-XXXXXX", fbLink: "https://facebook.com", memory: "টিফিনের টাকা বাঁচিয়ে বন্ধুদের খাইয়ে দিত ও। গোলপুকুর পাড়ের আড্ডার প্রাণ ছিল ও।", graveyard_location: "দিনাজপুর মুন্সিপাড়া গোরস্থান (Munshipara Graveyard)", family_details: { father: "মরহুম আমজাদ আলী", mother: "রাহেলা খাতুন", spouse: "N/A" } }
+                            { id: 1, name: "তানভীর আহমেদ (জিলা স্কুল)", image_url: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200", phone: "01711-000000", phone_status: "Active", phone_user: "মা ব্যবহার করছেন", guide_friend_tagged: "রাসেল মাহমুদ", guide: "0171X-XXXXXX", fbLink: "https://facebook.com", memory: "টিফিনের টাকা বাঁচিয়ে বন্ধুদের খাইয়ে দিত ও। গোলপুকুর পাড়ের আড্ডার প্রাণ ছিল ও।", graveyard_location: "দিনাজপুর মুন্সিপাড়া গোরস্থান (Munshipara Graveyard)", family_details: { father: "মরহুম আমজাদ আলী", mother: "রাহেলা খাতুন", spouse: "N/A" }, financial_status: "Stable" }
                         ];
                         localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends));
                         localStorage.setItem('baksho_purged_initialized', 'true');
                     }
+
+                    // Populate initial batchmates list database cache for management testing
+                    if(localStorage.getItem('batch_users_directory')) {
+                        this.usersList = JSON.parse(localStorage.getItem('batch_users_directory'));
+                    } else {
+                        this.usersList = [
+                            { id: 'usr_seed1', name: "আসিফ ইকবাল (জিলা স্কুল)", school: "দিনাজপুর জিলা স্কুল", contact: "01712-111111", role: "User" },
+                            { id: 'usr_seed2', name: "নওরীন সুলতানা (বালিকা উচ্চ)", school: "সরকারি বালিকা উচ্চ বিদ্যালয়", contact: "01713-222222", role: "User" }
+                        ];
+                        localStorage.setItem('batch_users_directory', JSON.stringify(this.usersList));
+                    }
+
                     if(localStorage.getItem('suggestions_queue')) this.suggestionsQueue = JSON.parse(localStorage.getItem('suggestions_queue'));
                     if(localStorage.getItem('reset_requests')) this.resetRequestsQueue = JSON.parse(localStorage.getItem('reset_requests'));
                     if(localStorage.getItem('batch_opportunities')) this.opportunities = JSON.parse(localStorage.getItem('batch_opportunities'));
                     if(localStorage.getItem('batch_help_requests')) this.helpRequests = JSON.parse(localStorage.getItem('batch_help_requests'));
+                    if(localStorage.getItem('batch_notifications')) this.friendNotifications = JSON.parse(localStorage.getItem('batch_notifications'));
                     if(localStorage.getItem('admin_session') === 'active') this.isAdmin = true;
                     this.fetchLivePosts();
                 },
@@ -402,24 +523,7 @@
                 t(key) { return this.dictionary[this.lang][key] || key; },
                 toggleLang() { this.lang = this.lang === 'bn' ? 'en' : 'bn'; },
 
-                // USER PROFILE PERSISTENCE DATA LAYER
-                saveUserProfile() {
-                    localStorage.setItem('user_session', JSON.stringify(this.currentUser));
-                    alert(this.lang === 'bn' ? "আপনার প্রোফাইল তথ্য সফলভাবে সংরক্ষণ করা হয়েছে! 💾" : "Profile parameters saved successfully! 💾");
-                    this.currentTab = 'feed';
-                },
-
-                handleDirectAdminLogin() {
-                    if (this.adminLoginPassword === this.adminSecret) {
-                        this.isAdmin = true; this.isLoggedIn = true;
-                        this.currentUser = { id: 'admin_master', name: '👑 সুপার এডমিন', school: 'দিনাজপুর জিলা/বালিকা উচ্চ', contact: 'Master Code Host', bio: 'Platform Controller', address: 'Dinajpur', fb: '#', wa: '#' };
-                        localStorage.setItem('user_session', JSON.stringify(this.currentUser));
-                        localStorage.setItem('admin_session', 'active');
-                        this.currentTab = 'feed'; this.adminLoginPassword = '';
-                        confetti({ particleCount: 100 });
-                    } else { alert("ভুল অ্যাডমিন পাসওয়ার্ড!"); }
-                },
-
+                // OMNI AUTOMATED AUTO-FETCH CHANNEL SECURITY TRIGGER
                 async triggerNativeFetch(channel) {
                     this.authForm.channel = channel; document.getElementById('autofill-identity').focus();
                     if (channel === 'Phone') { this.authForm.identity = "01712-002002"; this.authForm.name = "রাসেল মাহমুদ (জিলা স্কুল)"; }
@@ -427,49 +531,106 @@
                     confetti({ particleCount: 15 });
                 },
 
-                handleSignup() {
-                    if(!this.authForm.name || !this.authForm.identity || !this.authForm.password) return alert("ফিল্ড পূরণ করুন!");
-                    this.currentUser = { id: 'usr_' + Date.now(), name: this.authForm.name, school: this.authForm.school || 'Dinajpur Alumni', contact: this.authForm.identity, bio: '', address: '', fb: '', wa: '' };
-                    localStorage.setItem('user_session', JSON.stringify(this.currentUser)); this.isLoggedIn = true;
+                // OMNI CHANNEL REGISTER & OTP PROTOCOL SYSTEM
+                handleSignupTrigger() {
+                    if(!this.authForm.name || !this.authForm.identity || !this.authForm.password) return alert("সব ফিল্ড পূরণ করুন!");
+                    this.generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
+                    this.authMode = 'otp_verify';
+                    alert(`[SECURITY OTP SECURED] আপনার প্রদানকৃত ঠিকানায় কোড ট্র্রিগার করা হয়েছে।`);
+                },
+
+                verifyOtpAndSignup() {
+                    if (this.enteredOtp === this.generatedOtp) {
+                        this.currentUser = { id: 'usr_' + Date.now(), name: this.authForm.name, school: this.authForm.school || 'Dinajpur Alumni', contact: this.authForm.identity, bio: '', address: '', fb: '', wa: '', role: 'User' };
+                        
+                        // Sync profile parameters to global verified lists block
+                        this.usersList.push({ id: this.currentUser.id, name: this.currentUser.name, school: this.currentUser.school, contact: this.currentUser.contact, role: 'User' });
+                        localStorage.setItem('batch_users_directory', JSON.stringify(this.usersList));
+                        localStorage.setItem('user_session', JSON.stringify(this.currentUser));
+                        
+                        this.isLoggedIn = true; this.enteredOtp = ''; this.authMode = 'login';
+                        confetti({ particleCount: 100, spread: 80 });
+                    } else { alert("ভুল OTP সিকিউরিটি কোড!"); }
                 },
 
                 handleLogin() {
                     if(!this.authForm.identity || !this.authForm.password) return alert("আইডি ও পাসওয়ার্ড দিন!");
-                    this.currentUser = { id: 'usr_default', name: 'মোঃ আতিকুর রহমান মিম', school: 'তফিউদ্দিন মেমোরিয়াল হাই স্কুল', contact: this.authForm.identity, bio: '', address: '', fb: '', wa: '' };
+                    // Match cache identity parameter lookup bounds safely
+                    const matchedUser = this.usersList.find(u => u.contact === this.authForm.identity);
+                    this.currentUser = matchedUser ? { ...matchedUser, bio: '', address: '', fb: '', wa: '' } : { id: 'usr_default', name: 'রাসেল মাহমুদ', school: 'দিনাজপুর জিলা স্কুল', contact: this.authForm.identity, bio: '', address: '', fb: '', wa: '', role: 'User' };
                     localStorage.setItem('user_session', JSON.stringify(this.currentUser)); this.isLoggedIn = true;
                 },
 
                 logoutUser() { localStorage.removeItem('user_session'); localStorage.removeItem('admin_session'); this.isLoggedIn = false; this.isAdmin = false; this.authMode = 'login'; },
+                saveUserProfile() { localStorage.setItem('user_session', JSON.stringify(this.currentUser)); alert("আপনার প্রোফাইল ডাটা সংরক্ষিত হয়েছে! 💾"); this.currentTab = 'feed'; },
 
-                requestPasswordReset() {
-                    if(!this.forgotForm.identity.trim()) return alert("আইডি দিন!");
-                    this.resetRequestsQueue.push({ id: Date.now(), identity: this.forgotForm.identity, time: new Date().toLocaleTimeString() });
-                    localStorage.setItem('reset_requests', JSON.stringify(this.resetRequestsQueue));
-                    alert("অনুরোধ পাঠানো হয়েছে!"); this.forgotForm.identity = ''; this.authMode = 'login';
-                },
-
-                adminResetPassword(identity, idx) {
-                    let newPass = prompt(`নতুন পাসওয়ার্ড দিন:`, "dinajpur2002");
-                    if(newPass) { alert(`রিসেক কোড জেনারেট হয়েছে! পাসওয়ার্ড: "${newPass}"`); this.resetRequestsQueue.splice(idx, 1); localStorage.setItem('reset_requests', JSON.stringify(this.resetRequestsQueue)); }
+                // HOMEPAGE ADMIN ACCESS CONNECTOR CONTROL
+                handleDirectAdminLogin() {
+                    if (this.adminLoginPassword === this.adminSecret) {
+                        this.isAdmin = true; this.isLoggedIn = true;
+                        this.currentUser = { id: 'admin_master', name: '👑 সুপার এডমিন', school: 'দিনাজপুর জিলা/বালিকা উচ্চ', contact: 'Master Account' };
+                        localStorage.setItem('user_session', JSON.stringify(this.currentUser));
+                        localStorage.setItem('admin_session', 'active');
+                        this.currentTab = 'feed'; this.adminLoginPassword = '';
+                        confetti({ particleCount: 100 });
+                    } else { alert("ভুল অ্যাডমিন সিক্রেট পাসওয়ার্ড!"); }
                 },
 
                 handleAdminTabClick() {
                     if (this.isAdmin) { this.currentTab = 'admin'; } 
                     else {
-                        let password = prompt("অ্যাডমিন পাসওয়ার্ড দিন:");
+                        let password = prompt("অ্যাডমিন প্যানেল পাসওয়ার্ড দিন:");
                         if (password === this.adminSecret) { this.isAdmin = true; localStorage.setItem('admin_session', 'active'); this.currentTab = 'admin'; }
                     }
                 },
-
                 logoutAdmin() { this.isAdmin = false; localStorage.removeItem('admin_session'); this.currentTab = 'feed'; },
 
+                // ADVANCED ACCESS CONTROLLERS: PROMOTE USERS & CONVERT PROTOCOLS
+                promoteUserToAdmin(userId, idx) {
+                    this.usersList[idx].role = 'Admin';
+                    localStorage.setItem('batch_users_directory', JSON.stringify(this.usersList));
+                    alert(`🎉 সফলভাবে "${this.usersList[idx].name}"-কে নতুন কো-অ্যাডমিন রাইটস প্রদান করা হয়েছে!`);
+                },
+
+                convertUserToDeceased(userId, idx) {
+                    const targetUser = this.usersList[idx];
+                    if (confirm(`⚠️ মিমির বাক্স কনভারশন অ্যালার্ট:\n\nআপনি কি নিশ্চিতভাবে আমাদের ব্যাচমেট বন্ধু "${targetUser.name}"-এর অ্যাকাউন্টটি চিরতরে 'প্রয়াত বন্ধু মেমোরিয়াল' প্রোফাইলে স্থানান্তরিত করতে চান? এটি লোকাল মেম্বারশিপ তালিকা থেকে রি-লোকেট হয়ে যাবে।`)) {
+                        
+                        // Push automated calculated data matrix straight to deceased list registry bounds
+                        this.deceasedFriends.push({
+                            id: Date.now(),
+                            name: targetUser.name,
+                            image_url: "https://api.dicebear.com/7.x/initials/svg?seed=" + targetUser.name,
+                            phone: targetUser.contact,
+                            phone_status: "Inactive",
+                            phone_user: "পরিবারের নিকট সংরক্ষিত",
+                            guide_friend_tagged: "অ্যাডমিন মডারেটর (অর্পিত দায়িত্ব)",
+                            guide: "0171X-XXXXXX",
+                            fbLink: "#",
+                            graveyard_location: "দিনাজপুর গোরস্থান",
+                            memory: "আমাদের ব্যাচের অত্যন্ত প্রিয় এই বন্ধুটি আজ ওপারে পাড়ি জমিয়েছে। আমরা ওর স্মৃতি হৃদয়ে ধারণ করব।",
+                            family_details: { father: "N/A", mother: "N/A", spouse: "N/A", children_count: 0 }
+                        });
+                        
+                        // Purge from active directory list completely
+                        this.usersList.splice(idx, 1);
+                        localStorage.setItem('batch_users_directory', JSON.stringify(this.usersList));
+                        localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends));
+                        
+                        // Fire global alert notice
+                        this.triggerTaggedFriendNotification(targetUser.name, "👑 সুপার এডমিন", "অ্যাকাউন্ট মেমোরিয়াল প্রোফাইলে কনভার্ট করা হয়েছে");
+                        alert("অ্যাকাউন্টটি সফলভাবে মিমের বাক্স স্মৃতি ডিরেক্টরিতে স্থানান্তরিত হয়েছে।");
+                        this.currentTab = 'baksho';
+                    }
+                },
+
+                // SUPABASE CLOUD SYNC CHANNELS
                 async fetchLivePosts() {
                     let { data, error } = await _supabase.from('posts').select('*').order('created_at', { ascending: false });
                     if (!error && data) {
                         this.posts = data.map(p => ({ id: p.id, author: p.author || 'Anonymous', author_id: p.author_id || 'usr_default', time: p.created_at ? new Date(p.created_at).toLocaleTimeString() : 'Just Now', content: p.content }));
                     }
                 },
-
                 async addPost() {
                     if(!this.newPostText.trim()) return;
                     if(this.editingPostIndex !== null) {
@@ -480,71 +641,53 @@
                     const newPost = { author: this.currentUser.name, author_id: this.currentUser.id, content: this.newPostText, tag: 'সাধারণ' };
                     await _supabase.from('posts').insert([newPost]); this.newPostText = ''; this.fetchLivePosts();
                 },
-
                 editPost(index) { this.editingPostIndex = index; this.newPostText = this.posts[index].content; window.scrollTo({ top: 0, behavior: 'smooth' }); },
                 async deletePost(id, index) { if (confirm("মুছে ফেলতে চান?")) { if(id) await _supabase.from('posts').delete().eq('id', id); this.posts.splice(index, 1); this.fetchLivePosts(); } },
 
-                postOpportunity() {
-                    if(!this.opportunityForm.title.trim() || !this.opportunityForm.details.trim()) return alert("ফিল্ড পূরণ করুন!");
-                    this.opportunities.unshift({ id: Date.now(), title: this.opportunityForm.title, type: this.opportunityForm.type, details: this.opportunityForm.details, author: this.currentUser.name, author_id: this.currentUser.id, time: new Date().toLocaleDateString() });
-                    localStorage.setItem('batch_opportunities', JSON.stringify(this.opportunities)); this.opportunityForm = { title: '', type: 'Job Opportunity', details: '' };
+                // IMAGE PROCESSOR METRIC APPARATUS
+                processImageUpload(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => { this.adminForm.image_url = e.target.result; };
+                        reader.readAsDataURL(file);
+                    }
                 },
+
+                // NOTIFICATION TRIGGERS
+                triggerTaggedFriendNotification(friendName, taggedFriend, actionDetail) {
+                    const newAlert = { id: Date.now(), target_guide: taggedFriend, message: `🔔 প্রয়াত বন্ধু "${friendName}"-এর প্রোফাইলে "${actionDetail}" আপডেট করা হয়েছে।`, time: new Date().toLocaleTimeString() };
+                    this.friendNotifications.unshift(newAlert); localStorage.setItem('batch_notifications', JSON.stringify(this.friendNotifications));
+                },
+                dismissNotification(id) { this.friendNotifications = this.friendNotifications.filter(n => n.id !== id); localStorage.setItem('batch_notifications', JSON.stringify(this.friendNotifications)); },
+
+                requestPasswordReset() {
+                    if(!this.forgotForm.identity.trim()) return alert("আইডি দিন!");
+                    this.resetRequestsQueue.push({ id: Date.now(), identity: this.forgotForm.identity, time: new Date().toLocaleTimeString() });
+                    localStorage.setItem('reset_requests', JSON.stringify(this.resetRequestsQueue)); this.forgotForm.identity = ''; this.authMode = 'login'; alert("অনুরোধ পাঠানো হয়েছে!");
+                },
+                adminResetPassword(identity, idx) { let newPass = prompt(`নতুন পাসওয়ার্ড:`, "dinajpur2002"); if(newPass) { this.resetRequestsQueue.splice(idx, 1); localStorage.setItem('reset_requests', JSON.stringify(this.resetRequestsQueue)); alert("পাসওয়ার্ড ওভাররাইড সফল!"); } },
+                postOpportunity() { if(!this.opportunityForm.title.trim() || !this.opportunityForm.details.trim()) return alert("ফিল্ড পূরণ করুন!"); this.opportunities.unshift({ id: Date.now(), title: this.opportunityForm.title, type: this.opportunityForm.type, details: this.opportunityForm.details, author: this.currentUser.name, author_id: this.currentUser.id, time: new Date().toLocaleDateString() }); localStorage.setItem('batch_opportunities', JSON.stringify(this.opportunities)); this.opportunityForm = { title: '', type: 'Job Opportunity', details: '' }; },
                 deleteOpportunity(idx) { if(confirm("মুছে ফেলতে চান?")) { this.opportunities.splice(idx, 1); localStorage.setItem('batch_opportunities', JSON.stringify(this.opportunities)); } },
-
-                postHelpRequest() {
-                    if(!this.helpForm.details.trim()) return alert("বিবরণ লিখুন!");
-                    this.helpRequests.unshift({ id: Date.now(), type: this.helpForm.type, details: this.helpForm.details, author: this.currentUser.name, author_id: this.currentUser.id, time: new Date().toLocaleDateString() });
-                    localStorage.setItem('batch_help_requests', JSON.stringify(this.helpRequests)); this.helpForm.details = '';
-                },
+                postHelpRequest() { if(!this.helpForm.details.trim()) return alert("বিবরণ লিখুন!"); this.helpRequests.unshift({ id: Date.now(), type: this.helpForm.type, details: this.helpForm.details, author: this.currentUser.name, author_id: this.currentUser.id, time: new Date().toLocaleDateString() }); localStorage.setItem('batch_help_requests', JSON.stringify(this.helpRequests)); this.helpForm.details = ''; },
                 deleteHelpRequest(idx) { if(confirm("মুছে ফেলতে চান?")) { this.helpRequests.splice(idx, 1); localStorage.setItem('batch_help_requests', JSON.stringify(this.helpRequests)); } },
-
-                openSuggestionModal() {
-                    this.suggestForm = { phone: this.selectedFriend.phone || '', phone_status: this.selectedFriend.phone_status || 'Active', phone_user: this.selectedFriend.phone_user || '', guide_friend_tagged: this.selectedFriend.guide_friend_tagged || '', family_summary: '' };
-                    this.showSuggestionModal = true;
-                },
-                submitSuggestionToAdmin() {
-                    this.suggestionsQueue.push({ id: Date.now(), target_friend_id: this.selectedFriend.id, target_friend_name: this.selectedFriend.name, sender_name: this.currentUser.name, phone: this.suggestForm.phone, phone_status: this.suggestForm.phone_status, phone_user: this.suggestForm.phone_user, guide_friend_tagged: this.suggestForm.guide_friend_tagged, family_summary: this.suggestForm.family_summary });
-                    localStorage.setItem('suggestions_queue', JSON.stringify(this.suggestionsQueue)); this.showSuggestionModal = false; alert("প্রস্তাবটি অ্যাডমিন রিভিউ কিউতে পাঠানো হয়েছে!");
-                },
-                approveSuggestion(suggest, idx) {
-                    const friend = this.deceasedFriends.find(f => f.id === suggest.target_friend_id);
-                    if (friend) { friend.phone = suggest.phone; friend.phone_status = suggest.phone_status; friend.phone_user = suggest.phone_user; friend.guide_friend_tagged = suggest.guide_friend_tagged; localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends)); }
-                    this.suggestionsQueue.splice(idx, 1); localStorage.setItem('suggestions_queue', JSON.stringify(this.suggestionsQueue));
-                },
+                openSuggestionModal() { this.suggestForm = { phone: this.selectedFriend.phone || '', phone_status: this.selectedFriend.phone_status || 'Active', phone_user: this.selectedFriend.phone_user || '', guide_friend_tagged: this.selectedFriend.guide_friend_tagged || '', family_summary: '' }; this.showSuggestionModal = true; },
+                submitSuggestionToAdmin() { this.suggestionsQueue.push({ id: Date.now(), target_friend_id: this.selectedFriend.id, target_friend_name: this.selectedFriend.name, sender_name: this.currentUser.name, phone: this.suggestForm.phone, phone_status: this.suggestForm.phone_status, phone_user: this.suggestForm.phone_user, guide_friend_tagged: this.suggestForm.guide_friend_tagged, family_summary: this.suggestForm.family_summary }); localStorage.setItem('suggestions_queue', JSON.stringify(this.suggestionsQueue)); this.showSuggestionModal = false; alert("প্রস্তাব পাঠানো হয়েছে!"); },
+                approveSuggestion(suggest, idx) { const friend = this.deceasedFriends.find(f => f.id === suggest.target_friend_id); if (friend) { friend.phone = suggest.phone; friend.phone_status = suggest.phone_status; friend.phone_user = suggest.phone_user; friend.guide_friend_tagged = suggest.guide_friend_tagged; localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends)); } this.suggestionsQueue.splice(idx, 1); localStorage.setItem('suggestions_queue', JSON.stringify(this.suggestionsQueue)); },
                 rejectSuggestion(idx) { this.suggestionsQueue.splice(idx, 1); localStorage.setItem('suggestions_queue', JSON.stringify(this.suggestionsQueue)); },
-
-                openFriendProfile(friend) {
-                    this.selectedFriend = friend;
-                    const savedMemories = localStorage.getItem(`memories_friend_${friend.id}`);
-                    this.selectedFriendMemories = savedMemories ? JSON.parse(savedMemories) : [{ id: 1, author: "আসিফ ইকবাল", time: "14/06/2026", content: "স্কুল জীবনের বড় মাঠের আড্ডাগুলো মিস করি ভীষণ রে বন্ধু।" }];
-                },
-                submitFriendMemory() {
-                    if(!this.friendMemoryForm.content.trim()) return;
-                    this.selectedFriendMemories.unshift({ id: Date.now(), author: this.currentUser.name, time: new Date().toLocaleDateString(), content: this.friendMemoryForm.content });
-                    localStorage.setItem(`memories_friend_${this.selectedFriend.id}`, JSON.stringify(this.selectedFriendMemories)); this.friendMemoryForm.content = '';
-                },
-
-                // ABSOLUTE ADMINISTRATIVE PURGE AUTHORITY ENGINE
+                openFriendProfile(friend) { this.selectedFriend = friend; const savedMemories = localStorage.getItem(`memories_friend_${friend.id}`); this.selectedFriendMemories = savedMemories ? JSON.parse(savedMemories) : [{ id: 1, author: "আসিফ ইকবাল", time: "14/06/2026", content: "স্কুল জীবনের বড় মাঠের আড্ডাগুলো মিস করি ভীষণ রে বন্ধু।" }]; },
+                submitFriendMemory() { if(!this.friendMemoryForm.content.trim()) return; this.selectedFriendMemories.unshift({ id: Date.now(), author: this.currentUser.name, time: new Date().toLocaleDateString(), content: this.friendMemoryForm.content }); localStorage.setItem(`memories_friend_${this.selectedFriend.id}`, JSON.stringify(this.selectedFriendMemories)); this.friendMemoryForm.content = ''; },
+                
+                // ABSOLUTE ADMINISTRATIVE PURGE ACTION CORES
                 addFriendFromAdmin() {
                     if(!this.adminForm.name) return alert('কমপক্ষে নাম দিন!');
-                    this.deceasedFriends.push({ id: Date.now(), name: this.adminForm.name, image_url: this.adminForm.image_url || '', phone: this.adminForm.phone || '', phone_status: this.adminForm.phone_status, phone_user: this.adminForm.phone_user || '', guide_friend_tagged: this.adminForm.guide_friend_tagged || 'N/A', guide: 'N/A', fbLink: '#', memory: 'Always in our hearts.', graveyard_location: this.adminForm.graveyard_location || 'Dinajpur', family_details: { father: 'N/A', mother: 'N/A', spouse: 'N/A' } });
-                    localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends)); alert("ডিরেক্টরিতে যুক্ত হয়েছে!"); this.currentTab = 'baksho';
+                    this.deceasedFriends.push({ id: Date.now(), name: this.adminForm.name, image_url: this.adminForm.image_url || '', phone: this.adminForm.phone || '', phone_status: this.adminForm.phone_status, phone_user: this.adminForm.phone_user || '', guide_friend_tagged: this.adminForm.guide_friend_tagged || 'N/A', guide: 'N/A', fbLink: '#', memory: this.adminForm.memory || 'Always in our hearts.', graveyard_location: this.adminForm.graveyard_location || 'Dinajpur', family_details: { father: this.adminForm.father || 'N/A', mother: this.adminForm.mother || 'N/A', spouse: this.adminForm.spouse || 'N/A' }, financial_status: this.adminForm.financial_status });
+                    localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends));
+                    this.triggerTaggedFriendNotification(this.adminForm.name, this.adminForm.guide_friend_tagged, "নতুন প্রয়াত বন্ধু ডিরেক্টরি প্রোফাইল পাবলিশ");
+                    alert("ডিরেক্টরিতে সফলভাবে যুক্ত হয়েছে!"); this.currentTab = 'baksho';
                 },
-
-                deleteFriend(id, index) { 
-                    if (confirm("🚨 সতর্কবার্তা: আপনি কি নিশ্চিতভাবে এই প্রয়াত বন্ধুর সমস্ত প্রোফাইল ও ফ্যামিলি ডাটা ক্লাউড এবং লোকাল মেমোরি থেকে চিরতরে ডিলিট করতে চান? এটি আর ফিরে আসবে না!")) { 
-                        this.deceasedFriends.splice(index, 1); 
-                        localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends)); 
-                        this.selectedFriend = null;
-                        alert("ডাটা পার্মানেন্টলি ডিলিট করা হয়েছে।");
-                    } 
-                },
-
-                spinRoulette() {
-                    let prompts = ["স্কুল লাইফে কোন শিক্ষকের ক্লাসে সবচেয়ে বেশি কড়া শাসন পেতেন?", "Which spot in Dinajpur city was your favorite after school?", "টিফিনের হাফ-টাইমে কার বক্স আগে ফাঁকা হতো?"];
-                    let count = 0;
-                    let clock = setInterval(() => { this.currentMemoryPrompt = prompts[Math.floor(Math.random() * prompts.length)]; count++; if(count > 8) { clearInterval(clock); confetti({ particleCount: 20 }); } }, 100);
-                }
+                deleteFriend(id, index) { if (confirm("🚨 পার্মানেন্ট ডিলিশন অ্যালার্ট: আপনি কি নিশ্চিতভাবে এই প্রয়াত বন্ধুর প্রোফাইল ক্লাউড ও লোকাল সোর্স থেকে চিরতরে মুছে ফেলতে চান? এটি আর কখনোই ফিরে আসবে না!")) { this.deceasedFriends.splice(index, 1); localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends)); this.selectedFriend = null; } },
+                spinRoulette() { let prompts = ["স্কুল লাইফে কোন শিক্ষকের ক্লাসে সবচেয়ে বেশি কড়া শাসন পেতেন?", "Which spot in Dinajpur city was your favorite after school?", "টিফিনের হাফ-টাইমে কার বক্স আগে ফাঁকা হতো?"]; let count = 0; let clock = setInterval(() => { this.currentMemoryPrompt = prompts[Math.floor(Math.random() * prompts.length)]; count++; if(count > 8) { clearInterval(clock); confetti({ particleCount: 20 }); } }, 100); }
             }
         }
     </script>
