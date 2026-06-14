@@ -530,6 +530,22 @@
                     } catch(err) { alert(`🚨 এরর: ${err.message}`); } finally { this.aiProcessing = false; }
                 },
 
+                // Added function to handle social login/signup channels
+                triggerNativeFetch(channel) {
+                    this.authForm.channel = channel;
+                    if (channel === 'Phone') {
+                        this.authForm.identity = '01716897917'; // Pre-fill with the provided phone number
+                    } else {
+                        this.authForm.identity = ''; // Clear identity for other channels
+                    }
+                    this.$nextTick(() => {
+                        const identityInput = document.getElementById('autofill-identity');
+                        if (identityInput) {
+                            identityInput.focus();
+                        }
+                    });
+                },
+
                 handleSignupTrigger() { if(!this.authForm.name || !this.authForm.identity || !this.authForm.password) return alert("সব ফিল্ড দিন!"); this.generatedOtp = Math.floor(1000 + Math.random() * 9000).toString(); this.authMode = 'otp_verify'; },
                 verifyOtpAndSignup() { if (this.enteredOtp === this.generatedOtp) { this.currentUser = { id: 'usr_' + Date.now(), name: this.authForm.name, school: this.authForm.school || 'Alumni', contact: this.authForm.identity, role: 'User' }; this.usersList.push({ id: this.currentUser.id, name: this.currentUser.name, school: this.currentUser.school, contact: this.currentUser.contact, role: 'User' }); localStorage.setItem('batch_users_directory', JSON.stringify(this.usersList)); localStorage.setItem('user_session', JSON.stringify(this.currentUser)); this.isLoggedIn = true; this.enteredOtp = ''; this.authMode = 'login'; } else alert("ভুল OTP!"); },
                 handleLogin() { if(!this.authForm.identity || !this.authForm.password) return alert("আইডি পাসওয়ার্ড দিন!"); const matchedUser = this.usersList.find(u => u.contact === this.authForm.identity); this.currentUser = matchedUser ? { ...matchedUser } : { id: 'usr_default', name: 'রাসেল মাহমুদ', school: 'দিনাজপুর জিলা স্কুল', contact: this.authForm.identity, role: 'User' }; localStorage.setItem('user_session', JSON.stringify(this.currentUser)); this.isLoggedIn = true; },
