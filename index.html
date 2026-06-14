@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>দিনাজপুর ০২ কানেক্ট | Dinajpur 02 Connect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Hind Siliguri', sans-serif; }
+        .digital-clock { font-family: 'Orbitron', sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen" x-data="appState()" x-init="initApp()">
+
+    <nav class="sticky top-0 z-50 glass border-b border-slate-800 px-4 py-3 shadow-2xl">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" @click="currentTab = 'feed'">
+                <div class="bg-gradient-to-tr from-emerald-500 to-teal-400 p-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+                    <i class="fa-solid fa-atom text-slate-950 text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent" x-text="t('appName')"></h1>
+                    <p class="text-[10px] text-emerald-400/80 tracking-widest uppercase digital-clock">Batch OS v2.0.26</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button @click="toggleLang()" class="bg-slate-800 hover:bg-slate-700 text-xs text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-xl font-bold transition-all">
+                    <i class="fa-solid fa-language mr-1"></i> <span x-text="lang === 'bn' ? 'English' : 'বাংলা'"></span>
+                </button>
+
+                <div class="hidden sm:block text-right">
+                    <span class="text-xs text-slate-400 block"><span x-text="t('level')"></span>: <span class="text-emerald-400 font-bold" x-text="userXP"></span> XP</span>
+                </div>
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Dinajpur" class="w-9 h-9 rounded-xl border border-emerald-500/40 bg-slate-800" alt="Avatar">
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 px-4 py-6">
+        
+        <aside class="w-full lg:w-1/4 flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-3 lg:pb-0 sticky top-[73px] h-fit z-40 bg-slate-950 lg:bg-transparent">
+            <button @click="currentTab = 'feed'" :class="currentTab === 'feed' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none">
+                <i class="fa-solid fa-glowing-star"></i> <span x-text="t('tabTimeline')"></span>
+            </button>
+            <button @click="currentTab = 'baksho'" :class="currentTab === 'baksho' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none">
+                <i class="fa-solid fa-box-open text-amber-400"></i> <span x-text="t('tabBaksho')"></span>
+            </button>
+            <button @click="currentTab = 'funzone'" :class="currentTab === 'funzone' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none">
+                <i class="fa-solid fa-gamepad text-purple-400"></i> <span x-text="t('tabFun')"></span>
+            </button>
+            <button @click="currentTab = 'planner'" :class="currentTab === 'planner' ? 'bg-emerald-600 text-slate-950 font-bold' : 'glass text-slate-300'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none">
+                <i class="fa-solid fa-calendar-plus text-sky-400"></i> <span x-text="t('tabEvents')"></span>
+            </button>
+            <button @click="currentTab = 'admin'" :class="currentTab === 'admin' ? 'bg-red-600 text-white font-bold' : 'glass text-red-400 border-red-900/30'" class="whitespace-nowrap px-4 py-3 rounded-xl transition-all flex items-center gap-3 text-sm flex-1 lg:flex-none lg:mt-6">
+                <i class="fa-solid fa-user-shield"></i> <span x-text="t('tabAdmin')"></span>
+            </button>
+        </aside>
+
+        <main class="w-full lg:w-3/4">
+
+            <div x-show="currentTab === 'feed'" x-transition class="space-y-6">
+                <div class="glass p-5 rounded-2xl">
+                    <div class="flex gap-4">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=user" class="w-10 h-10 rounded-xl bg-slate-800 border" alt="Avatar">
+                        <div class="w-full">
+                            <textarea x-model="newPostText" class="w-full bg-slate-900/50 border border-slate-700/60 rounded-xl p-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-100 placeholder-slate-500" rows="2" :placeholder="t('postPlaceholder')"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-4 pt-3 border-t border-slate-800">
+                        <span class="text-xs text-slate-400" x-text="t('liveStatus')"></span>
+                        <button @click="addPost()" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 text-xs px-5 py-2.5 rounded-xl font-bold" x-text="t('btnPost')"></button>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <template x-for="(post, index) in posts" :key="index">
+                        <div class="glass p-5 rounded-2xl space-y-4">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <img :src="'https://api.dicebear.com/7.x/bottts/svg?seed=' + post.author" class="w-10 h-10 rounded-xl bg-slate-800">
+                                    <div>
+                                        <h4 class="text-sm font-bold text-slate-200" x-text="post.author"></h4>
+                                        <p class="text-[10px] text-emerald-400/80 digital-clock" x-text="post.time"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-slate-300" x-text="post.content"></p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div x-show="currentTab === 'baksho'" x-transition class="space-y-6">
+                <div class="glass p-6 rounded-2xl border border-amber-500/20">
+                    <h3 class="text-xl font-bold text-amber-400 mb-2" x-text="t('bakshoTitle')"></h3>
+                    <p class="text-xs text-slate-400" x-text="t('bakshoDesc')"></p>
+                    
+                    <div class="mt-6 space-y-4">
+                        <template x-for="friend in deceasedFriends" :key="friend.id">
+                            <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 flex flex-col sm:flex-row gap-4 items-center">
+                                <img :src="'https://api.dicebear.com/7.x/initials/svg?seed=' + friend.name" class="w-12 h-12 rounded-xl bg-slate-800">
+                                <div class="flex-1 text-center sm:text-left">
+                                    <h5 class="text-sm font-bold text-slate-200" x-text="friend.name"></h5>
+                                    <p class="text-xs text-slate-400 mt-1"><strong x-text="t('guideFriend')"></strong>: <span x-text="friend.guide"></span></p>
+                                    <p class="text-xs text-slate-300 mt-1"><strong x-text="t('familyStatus')"></strong>: <span x-text="friend.family"></span></p>
+                                    <p class="text-xs text-amber-400/90 mt-2 italic">"<span x-text="friend.memory"></span>"</p>
+                                    
+                                    <div class="flex justify-center sm:justify-start gap-3 mt-3 text-sm text-slate-400">
+                                        <a :href="friend.fbLink" target="_blank" class="hover:text-blue-500"><i class="fa-brands fa-facebook"></i> Memory Profile</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="currentTab === 'funzone'" x-transition class="space-y-6">
+                <div class="glass p-6 rounded-2xl border border-purple-500/20">
+                    <h3 class="text-lg font-bold text-purple-300 mb-2" x-text="t('rouletteTitle')"></h3>
+                    <p class="text-xs text-slate-400 mb-4" x-text="t('rouletteDesc')"></p>
+                    <div class="bg-slate-900/80 p-5 rounded-xl text-center space-y-4">
+                        <p class="text-base font-medium text-emerald-400" x-text="currentMemoryPrompt"></p>
+                        <button @click="spinRoulette()" class="bg-purple-600 text-white text-xs font-bold px-6 py-3 rounded-xl" x-text="t('btnSpin')"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="currentTab === 'planner'" x-transition class="space-y-6">
+                <div class="glass p-5 rounded-2xl">
+                    <h3 class="text-base font-bold text-slate-200 mb-4" x-text="t('tabEvents')"></h3>
+                    <div class="border border-slate-800 bg-slate-900/40 p-4 rounded-xl flex gap-4">
+                        <div class="bg-sky-500 text-slate-950 font-bold p-3 rounded-xl text-center min-w-[65px]">
+                            <span class="block text-xl">২৮</span><span class="text-[9px] uppercase">JUN</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-200" x-text="t('sampleEventTitle')"></h4>
+                            <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-map-location-dot"></i> Dinajpur Rajbari Field</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="currentTab === 'admin'" x-transition class="space-y-6">
+                <div class="glass p-6 rounded-2xl border border-red-500/20">
+                    <h3 class="text-lg font-bold text-red-400 mb-2">অ্যাডমিন ডাটা প্রি-পপুলেশন ইঞ্জিন (Pre-populate Dashboard)</h3>
+                    <p class="text-xs text-slate-400 mb-6">অ্যাপটি সম্পূর্ণ লাইভ করার আগে, আপনার প্রয়াত বন্ধুদের বিবরণ এখানে যুক্ত করুন। নিচে জেনারেট হওয়া কোডটি কপি করে আপনার স্থায়ী সোর্সে পেস্ট করলেই এটি সবার জন্য ফিক্সড হয়ে যাবে।</p>
+                    
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <h4 class="text-xs font-bold text-slate-300 uppercase">নতুন বিবরণ এন্ট্রি ফরম</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input x-model="adminForm.name" type="text" placeholder="বন্ধুর নাম (Friend's Name)" class="bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200">
+                            <input x-model="adminForm.guide" type="text" placeholder="সবচেয়ে যুক্ত গাইড বন্ধু ও ফোন নম্বর" class="bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200">
+                            <input x-model="adminForm.fbLink" type="text" placeholder="ফেসবুক প্রোফাইল বা স্মৃতি লিঙ্ক" class="bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200">
+                            <input x-model="adminForm.family" type="text" placeholder="পরিবারের বর্তমান অবস্থা ও অবস্থান" class="bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200">
+                        </div>
+                        <textarea x-model="adminForm.memory" placeholder="তার সম্পর্কে ব্যাচের একটি বিশেষ স্মৃতি বা উক্তি..." class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-slate-200" rows="2"></textarea>
+                        
+                        <button @click="addFriendFromAdmin()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-4 py-2 rounded font-bold">তাত্ক্ষণিক অ্যাড করুন</button>
+                    </div>
+
+                    <div class="mt-6 space-y-2">
+                        <h4 class="text-xs font-bold text-emerald-400 uppercase">২. স্থায়ী কোড জেনারেটর (গিটহাবে পেস্ট করার জন্য)</h4>
+                        <p class="text-[11px] text-slate-400">নিচের বক্সের কোডটি কপি করে আপনার মূল `index.html` ফাইলের `deceasedFriends:` অ্যারের জায়গায় রিপ্লেস করে দিলেই ডাটা স্থায়ী হয়ে যাবে!</p>
+                        <textarea readonly class="w-full bg-black text-green-400 p-3 rounded-lg font-mono text-[10px]" rows="5" x-text="JSON.stringify(deceasedFriends, null, 2)"></textarea>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        function appState() {
+            return {
+                lang: 'bn',
+                currentTab: 'feed',
+                userXP: 100,
+                newPostText: '',
+                currentMemoryPrompt: '🎡 Click spin to get a nostalgia challenge question!',
+                
+                // Form Holder
+                adminForm: { name: '', guide: '', fbLink: '', family: '', memory: '' },
+
+                // PRE-POPULATED INITIAL DECEASED FRIENDS DATA (Admin can replace this default text)
+                deceasedFriends: [
+                    { id: 1, name: "তানভীর আহমেদ (জিলা স্কুল)", guide: "রাসেল মাহমুদ (0171X-XXXXXX)", fbLink: "https://facebook.com", family: "মা ও ছোট বোন বর্তমানে চিরিরবন্দরে আছেন।", memory: "টিফিনের টাকা বাঁচিয়ে বন্ধুদের খাইয়ে দিত ও।" },
+                    { id: 2, name: "সুমন দেবনাথ (দিনাজপুর একাডেমী)", guide: "আসিফ ইকবাল (0172X-XXXXXX)", fbLink: "https://facebook.com", family: "পরিবার দিনাজপুর শহরের কালীতলায় স্থায়ীভাবে আছেন।", memory: "ক্রিকেট পিচে ওর মতন অলরাউন্ডার আমাদের ব্যাচে আর কেউ ছিল না।" }
+                ],
+
+                posts: [
+                    { author: 'রাসেল আহমেদ', time: '10 Mins Ago', content: 'দিনাজপুর গোর-এ-শহীদ বড় মাঠের কোণার সেই চায়ের আড্ডাটার কথা মনে আছে?' }
+                ],
+
+                // Dynamic Translation Dictionary
+                dictionary: {
+                    bn: {
+                        appName: "দিনাজপুর ০২ কানেক্ট", level: "লেভেল", tabTimeline: "সাইবার টাইমলাইন", tabBaksho: "মিমের বাক্স 📦",
+                        tabFun: "ফান জোন 🎮", tabEvents: "ইভেন্ট প্ল্যানার", tabAdmin: "অ্যাডমিন প্যানেল", postPlaceholder: "দিনাজপুরের কোনো হারানো স্মৃতি শেয়ার করো...",
+                        liveStatus: "🟢 লাইভ নেটওয়ার্ক একটিভ", btnPost: "রিলিজ পোস্ট 🚀", bakshoTitle: "মিমের বাক্স (আমাদের পবিত্র দায়িত্ব)",
+                        bakshoDesc: "হারিয়ে যাওয়া বন্ধুদের স্মরণে এবং তাদের পরিবারের পাশে দাঁড়াতে আমাদের একটি স্থায়ী সম্মানসূচক ব্যাচ প্রজেক্ট।",
+                        guideFriend: "প্রধান গাইড বন্ধু", familyStatus: "পরিবারের অবস্থা", rouletteTitle: "নস্টালজিয়া রুলেট 🎡",
+                        rouletteDesc: "চাকা ঘোরান এবং যেকোনো একটি দৈব স্মৃতির প্রশ্নের উত্তর দিয়ে টাইমলাইনে পোস্ট করুন!", btnSpin: "চাকা ঘোরান 🎯",
+                        sampleEventTitle: "ঈদ পরবর্তী মিলনমেলা ও স্মৃতিচারণ আড্ডা ২০২৬"
+                    },
+                    en: {
+                        appName: "Dinajpur 02 Connect", level: "Level", tabTimeline: "Cyber Timeline", tabBaksho: "Mimer Baksho 📦",
+                        tabFun: "Fun Zone 🎮", tabEvents: "Event Planner", tabAdmin: "Admin Dashboard", postPlaceholder: "Share an old memory of Dinajpur school days...",
+                        liveStatus: "🟢 Live Network Active", btnPost: "Release Post 🚀", bakshoTitle: "Mimer Baksho (Our Duty Hub)",
+                        bakshoDesc: "A dedicated space to honor our deceased friends and directly connect with their families with dignity.",
+                        guideFriend: "Main Guide Friend", familyStatus: "Family Update", rouletteTitle: "Nostalgia Roulette 🎡",
+                        rouletteDesc: "Spin the wheel to get a random old memory prompt to share on the feed!", btnSpin: "Spin Wheel 🎯",
+                        sampleEventTitle: "Post-Eid Reunion & Nostalgia Meetup 2026"
+                    }
+                },
+
+                initApp() {
+                    if(localStorage.getItem('saved_friends')) {
+                        this.deceasedFriends = JSON.parse(localStorage.getItem('saved_friends'));
+                    }
+                    this.currentMemoryPrompt = this.lang === 'bn' ? '🎡 একটি স্মৃতি বিষয়ক প্রশ্ন পেতে স্পিন করুন!' : '🎡 Click spin to get a nostalgia question!';
+                },
+
+                t(key) {
+                    return this.dictionary[this.lang][key] || key;
+                },
+
+                toggleLang() {
+                    this.lang = this.lang === 'bn' ? 'en' : 'bn';
+                    this.currentMemoryPrompt = this.lang === 'bn' ? '🎡 একটি স্মৃতি বিষয়ক প্রশ্ন পেতে স্পিন করুন!' : '🎡 Click spin to get a nostalgia question!';
+                },
+
+                addPost() {
+                    if(!this.newPostText.trim()) return;
+                    this.posts.unshift({ author: 'You (Admin)', time: 'Just Now', content: this.newPostText });
+                    this.newPostText = '';
+                    this.userXP += 10;
+                },
+
+                addFriendFromAdmin() {
+                    if(!this.adminForm.name) return alert('কমপক্ষে নাম প্রদান করুন!');
+                    this.deceasedFriends.push({
+                        id: Date.now(),
+                        name: this.adminForm.name,
+                        guide: this.adminForm.guide || 'N/A',
+                        fbLink: this.adminForm.fbLink || '#',
+                        family: this.adminForm.family || 'Information update in progress',
+                        memory: this.adminForm.memory || 'Always in our hearts.'
+                    });
+                    localStorage.setItem('saved_friends', JSON.stringify(this.deceasedFriends));
+                    // Reset Form
+                    this.adminForm = { name: '', guide: '', fbLink: '', family: '', memory: '' };
+                    confetti({ particleCount: 50, spread: 60 });
+                },
+
+                spinRoulette() {
+                    let prompts = [
+                        "স্কুল লাইফে কোন শিক্ষকের ক্লাসে সবচেয়ে বেশি কড়া শাসন পেতেন?",
+                        "Which spot in Dinajpur city was your favorite hangout after school?",
+                        "টিফিনের হাফ-টাইমে কার টিফিন বক্স সবচেয়ে আগে ফাঁকা হতো?",
+                        "What is your most unforgettable memory of SSC exam days in 2002?"
+                    ];
+                    let count = 0;
+                    let clock = setInterval(() => {
+                        this.currentMemoryPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+                        count++;
+                        if(count > 8) {
+                            clearInterval(clock);
+                            confetti({ particleCount: 40 });
+                        }
+                    }, 100);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
