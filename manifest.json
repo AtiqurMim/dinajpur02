@@ -1,0 +1,16 @@
+{
+  "name": "দিনাজপুর ০২ কানেক্ট",
+  "short_name": "Dinajpur02",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#059669",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/bottts/svg?seed=Dinajpur",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ]
+}
